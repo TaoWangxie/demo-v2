@@ -8,7 +8,7 @@ import dragSelect from '@/directives/dragSelect';
 
 Vue.directive('drag-select', dragSelect);
 
-window.wtjsInstance = init({
+window.WTJS = init({
     // set debug true to convenient debugger in dev,set false in prod
     debug: true,
     silentConsole: true,

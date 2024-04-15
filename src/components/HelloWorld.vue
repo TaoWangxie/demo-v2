@@ -1,6 +1,6 @@
 <template>
   <div class="hello" >
-    <el-button type="primary">主要按钮</el-button>
+    <el-button type="primary" @click="transport">主要按钮</el-button>
     <div class="table_box">
       <el-table
         ref="myTable"
@@ -78,11 +78,16 @@ export default {
     }
   },
   mounted() {
-
-  },
-  beforeDestroy() {
+    console.log(window.WTJS)
   },
   methods: {
+    transport(){
+      window.WTJS.transport.send({
+        type: "event_click_nav",
+        fromId: "dvergfcedfv",
+        isTrack: true,
+      })
+    }
   },
 };
 </script>
