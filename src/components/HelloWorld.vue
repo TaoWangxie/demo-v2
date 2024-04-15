@@ -1,6 +1,6 @@
 <template>
   <div class="hello" >
-    <el-button type="primary" @click="transport">主要按钮</el-button>
+    <el-button type="primary" @click="transport">手动埋点</el-button>
     <div class="table_box">
       <el-table
         ref="myTable"
