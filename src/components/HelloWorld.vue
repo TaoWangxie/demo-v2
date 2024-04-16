@@ -34,13 +34,23 @@
         </el-table-column>
       </el-table>
     </div>
-
+    <EditTable 
+      ref="EditTable"
+      :data="tableInfo.data" 
+      :columns="tableInfo.columns"
+      :rules="tableInfo.rules"
+      :hideConfig="tableInfo.hideConfig"
+    ></EditTable>
   </div>
 </template>
 
 <script>
+import EditTable from '@/components/EditTable.vue'
 export default {
   name: "HelloWorld",
+  components: {
+    EditTable
+  },
   props: {
     msg: String,
   },
@@ -75,18 +85,49 @@ export default {
         address: '上海市普',
         zip: 200333
       }],
+      tableInfo:{
+        data: [],
+        columns: [
+          {
+            label: "员工姓名",
+            prop: "userName",
+          },
+          {
+            label: "员工号",
+            prop: "userCode",
+            colType: 'input'
+          },
+          {
+            label: "角色",
+            prop: "userRole",
+          }
+        ],
+        rules:{
+          userCode: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
+        },
+        hideConfig: ['checkbox'],
+      }
     }
   },
   mounted() {
     console.log(window.WTJS)
+    this.tableInfo.data = [
+      {
+        userName:'11',
+        userCode:'',
+        userRole:'11',
+      }
+    ]
   },
   methods: {
-    transport(){
-      window.WTJS.transport.send({
-        type: "event_click_nav",
-        fromId: "dvergfcedfv",
-        isTrack: true,
-      })
+    async transport(){
+      let aa = await this.$refs.EditTable.confirmRule()
+      console.log(aa)
+      // window.WTJS.transport.send({
+      //   type: "event_click_nav",
+      //   fromId: "dvergfcedfv",
+      //   isTrack: true,
+      // })
     }
   },
 };

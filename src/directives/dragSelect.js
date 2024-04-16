@@ -67,34 +67,32 @@ export default {
                 
                 // 遍历并设置选中单元格的样式和获取数据
                 for (let i = minRowIndex; i <= maxRowIndex; i++) {
-                const row = rows[i];
-                if (row) {
-                    const cells = Array.from(row.getElementsByTagName('td'));
-                    for (let j = minCellIndex; j <= maxCellIndex; j++) {
-                        const cell = cells[j];
-                        if (cell) {
-                            // 如果按住了 Shift 键且单元格已经有样式，则跳过设置样式
-                            if (isShiftPressed && cell.style.backgroundColor !== '') {
-                                continue;
+                    const row = rows[i];
+                    if (row) {
+                        const cells = Array.from(row.getElementsByTagName('td'));
+                        for (let j = minCellIndex; j <= maxCellIndex; j++) {
+                            const cell = cells[j];
+                            if (cell) {
+                                // 如果按住了 Shift 键且单元格已经有样式，则跳过设置样式
+                                if (isShiftPressed && cell.style.backgroundColor !== '') {
+                                    continue;
+                                }
+                                cell.style.backgroundColor = 'rgba(0, 0, 255, 0.4)';
+                                // 获取单元格的数据以及相关信息，并将其存入 selectedData 数组
+                                const rowIndex = i;
+                                const columnIndex = j;
+                                const cellData = {
+                                    prop: '',
+                                    name: '',
+                                    row: rowIndex,
+                                    column: columnIndex,
+                                    value: cell.textContent
+                                };
+                                selectedData.push(cellData);
                             }
-                            cell.style.backgroundColor = 'rgba(0, 0, 255, 0.4)';
-                            // 获取单元格的数据以及相关信息，并将其存入 selectedData 数组
-                            const columnProp = cell.getAttribute('data-prop');
-                            const columnName = cell.getAttribute('data-name');
-                            const rowIndex = i;
-                            const columnIndex = j;
-                            const cellData = {
-                                prop: columnProp,
-                                name: columnName,
-                                row: rowIndex,
-                                column: columnIndex,
-                                value: cell.textContent
-                            };
-                            selectedData.push(cellData);
                         }
                     }
                 }
-            }
                 console.log(selectedData);
             }
         };
