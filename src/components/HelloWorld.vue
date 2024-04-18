@@ -34,22 +34,31 @@
         </el-table-column>
       </el-table>
     </div>
-    <EditTable 
+    <!-- <EditTable 
       ref="EditTable"
       :data="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
       :hideConfig="tableInfo.hideConfig"
-    ></EditTable>
+    ></EditTable> -->
+    <HeadEditTable
+      ref="HeadEditTable"
+      v-drag-select
+      :data="tableInfo.data" 
+      :columns="tableInfo.columns"
+      :rules="tableInfo.rules"
+      :hideConfig="tableInfo.hideConfig">
+    </HeadEditTable>
   </div>
 </template>
 
 <script>
-import EditTable from '@/components/EditTable.vue'
+// import EditTable from '@/components/EditTable.vue'
+import HeadEditTable from '@/components/HeadEditTable.vue'
 export default {
   name: "HelloWorld",
   components: {
-    EditTable
+    HeadEditTable
   },
   props: {
     msg: String,
@@ -91,6 +100,13 @@ export default {
           {
             label: "员工姓名",
             prop: "userName",
+            children: [
+              {
+                label: "耳机",
+                prop: "two",
+                colType: 'input'
+              },
+            ]
           },
           {
             label: "员工号",
@@ -103,7 +119,7 @@ export default {
           }
         ],
         rules:{
-          userCode: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
+          two: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
         },
         hideConfig: ['checkbox'],
       }
@@ -113,8 +129,15 @@ export default {
     console.log(window.WTJS)
     this.tableInfo.data = [
       {
+        two:'',
         userName:'11',
-        userCode:'',
+        userCode:'111',
+        userRole:'11',
+      },
+      {
+        two:'',
+        userName:'11',
+        userCode:'111',
         userRole:'11',
       }
     ]

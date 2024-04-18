@@ -53,12 +53,13 @@ export default {
             });
             if (startCell && endCell) {
                 // 获取选中的单元格范围
-                const startRowIndex = startCell.parentNode.rowIndex + 1;
+                const startRowIndex = startCell.parentNode.rowIndex;
                 const startCellIndex = startCell.cellIndex;
-                const endRowIndex = endCell.parentNode.rowIndex + 1;
+                const endRowIndex = endCell.parentNode.rowIndex;
                 const endCellIndex = endCell.cellIndex;
                 // 获取表格的所有行
-                const rows = Array.from(table.getElementsByTagName('tr'));
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.getElementsByTagName('tr'));
                 // 计算矩形选中区域的范围
                 const minRowIndex = Math.min(startRowIndex, endRowIndex);
                 const maxRowIndex = Math.max(startRowIndex, endRowIndex);
