@@ -15,7 +15,7 @@
           <template v-for="(slotname) in colItem.slotname" v-slot:[slotname]="{ scope }">
             <slot :name="slotname" :scope="scope"></slot> 
           </template>
-      </ETableColumn>
+        </ETableColumn>
       </template>
   </el-table-column>
   <el-table-column

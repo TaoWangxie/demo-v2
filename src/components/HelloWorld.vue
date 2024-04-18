@@ -57,6 +57,9 @@
       <template #userName="{ scope }">
         <div>{{ scope.row.userName }}</div>
       </template>
+      <template #userName2="{ scope }">
+        <div>{{ scope.row.userName2 }}</div>
+      </template>
       
     </ETableHeaderTwo>
     <!-- <aaa :columns="columns">
@@ -120,12 +123,18 @@ export default {
         columns: [
           {
             label: "员工姓名1111",
-            slotname: ['userName'],
+            slotname: ['userName','userName2'],
             children: [
               {
                 label: "1111",
                 slotname: ['userName'],
                 prop: "userName",
+                colType: 'slot'
+              },
+              {
+                label: "2222",
+                slotname: ['userName2'],
+                prop: "userName2",
                 colType: 'slot'
               },
             ]
@@ -172,11 +181,13 @@ export default {
     this.tableInfo.data = [
       {
         userName:'11',
+        userName2:'1122',
         userCode:'222',
         userRole:'3333',
       },
       {
         userName:'11',
+        userName2:'1122',
         userCode:'222',
         userRole:'333',
       }
@@ -207,3 +218,4 @@ export default {
   user-select: none; /* 标准语法 */
 }
 </style>
+
