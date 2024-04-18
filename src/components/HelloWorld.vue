@@ -34,31 +34,44 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- <EditTable 
+    <EditTable 
       ref="EditTable"
       :data="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
       :hideConfig="tableInfo.hideConfig"
-    ></EditTable> -->
-    <HeadEditTable
-      ref="HeadEditTable"
-      v-drag-select
+    ></EditTable>
+    <ETableHeaderOne
+      ref="ETableHeaderOne"
       :data="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
-      :hideConfig="tableInfo.hideConfig">
-    </HeadEditTable>
+      :hideConfig="tableInfo.hideConfig"
+      @dataChange="dataChange"
+      >
+    </ETableHeaderOne>
+    <ETableHeaderTwo
+      ref="ETableHeaderTwo"
+      :data="tableInfo.data" 
+      :columns="tableInfo.columns"
+      :rules="tableInfo.rules"
+      :hideConfig="tableInfo.hideConfig"
+      @dataChange="dataChange"
+      >
+    </ETableHeaderTwo>
   </div>
 </template>
 
 <script>
-// import EditTable from '@/components/EditTable.vue'
-import HeadEditTable from '@/components/HeadEditTable.vue'
+import EditTable from '@/components/EditTable.vue'
+import ETableHeaderOne from '@/components/ETableHeaderOne'
+import ETableHeaderTwo from '@/components/ETableHeaderTwo'
 export default {
   name: "HelloWorld",
   components: {
-    HeadEditTable
+    ETableHeaderOne,
+    ETableHeaderTwo,
+    EditTable
   },
   props: {
     msg: String,
@@ -98,30 +111,45 @@ export default {
         data: [],
         columns: [
           {
-            label: "员工姓名",
-            prop: "userName",
+            label: "员工姓名1111",
             children: [
               {
-                label: "耳机",
+                label: "1111",
                 prop: "two",
                 colType: 'input'
+              },
+              {
+                label: "2222",
+                prop: "three",
+                children:[
+                  {
+                    label: "6666",
+                    prop: "66",
+                    colType: 'input'
+                  },
+                  {
+                    label: "777",
+                    prop: "777",
+                    colType: 'input'
+                  },
+                ]
               },
             ]
           },
           {
-            label: "员工号",
+            label: "员工号2222",
             prop: "userCode",
             colType: 'input'
           },
           {
-            label: "角色",
+            label: "角色3333",
             prop: "userRole",
           }
         ],
         rules:{
           two: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
         },
-        hideConfig: ['checkbox'],
+        hideConfig: ['checkbox','serial'],
       }
     }
   },
@@ -143,6 +171,9 @@ export default {
     ]
   },
   methods: {
+    dataChange(val){
+      console.log(val)
+    },
     async transport(){
       let aa = await this.$refs.EditTable.confirmRule()
       console.log(aa)

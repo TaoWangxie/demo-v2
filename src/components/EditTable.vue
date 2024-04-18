@@ -26,57 +26,58 @@
               label="序号"
             />
           </template>
-          <el-table-column
-            v-for="(colItem, index) in columns"
-            :key="colItem.label + index"
-            :prop="colItem.prop"
-            v-bind="colItem"
-            min-width="120px"
-            show-overflow-tooltip
-          >
-            <template #default="scope">
-              <template v-if="colItem.colType === 'slot'">
-                <el-form-item
-                  :prop="'data.' + scope.$index + `.${colItem.prop}`"
-                  :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
-                >
-                  <slot :name="colItem.prop" :scope="scope" />
-                </el-form-item>
+          <template v-for="(colItem, index) in columns">
+            <el-table-column
+              :key="colItem.label + index"
+              :prop="colItem.prop"
+              v-bind="colItem"
+              min-width="120px"
+              show-overflow-tooltip
+            >
+              <template #default="scope">
+                <template v-if="colItem.colType === 'slot'">
+                  <el-form-item
+                    :prop="'data.' + scope.$index + `.${colItem.prop}`"
+                    :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
+                  >
+                    <slot :name="colItem.prop" :scope="scope" />
+                  </el-form-item>
+                </template>
+                <template v-else-if="colItem.colType === 'inputNumber'">
+                  <el-form-item
+                    :prop="'data.' + scope.$index + `.${colItem.prop}`"
+                    :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
+                  >
+                    <el-input-number
+                      v-model="scope.row[colItem.prop]"
+                      style="width: 100%"
+                      v-bind="colItem.col"
+                      size="small"
+                      @change="dataChange($event, colItem, scope.$index)"
+                    />
+                  </el-form-item>
+                </template>
+                <template v-else-if="colItem.colType === 'input'">
+                  <el-form-item
+                    :prop="'data.' + scope.$index + `.${colItem.prop}`"
+                    :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
+                  >
+                    <el-input
+                      v-model="scope.row[colItem.prop]"
+                      placeholder="请输入"
+                      v-bind="colItem.col"
+                      size="small"
+                      @input="dataChange($event, colItem, scope.$index)"
+                    />
+                  </el-form-item>
+                </template>
+                <!-- 普通列 -->
+                <template v-else>
+                  {{ scope.row[colItem.prop] ? scope.row[colItem.prop] : "-" }}
+                </template>
               </template>
-              <template v-else-if="colItem.colType === 'inputNumber'">
-                <el-form-item
-                  :prop="'data.' + scope.$index + `.${colItem.prop}`"
-                  :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
-                >
-                  <el-input-number
-                    v-model="scope.row[colItem.prop]"
-                    style="width: 100%"
-                    v-bind="colItem.col"
-                    size="small"
-                    @change="dataChange($event, colItem, scope.$index)"
-                  />
-                </el-form-item>
-              </template>
-              <template v-else-if="colItem.colType === 'input'">
-                <el-form-item
-                  :prop="'data.' + scope.$index + `.${colItem.prop}`"
-                  :rules="tableFrom.rules ? tableFrom.rules[colItem.prop] : []"
-                >
-                  <el-input
-                    v-model="scope.row[colItem.prop]"
-                    placeholder="请输入"
-                    v-bind="colItem.col"
-                    size="small"
-                    @input="dataChange($event, colItem, scope.$index)"
-                  />
-                </el-form-item>
-              </template>
-              <!-- 普通列 -->
-              <template v-else>
-                {{ scope.row[colItem.prop] ? scope.row[colItem.prop] : "-" }}
-              </template>
-            </template>
-          </el-table-column>
+            </el-table-column>
+          </template>
         </el-table>
       </el-form>
     </div>

@@ -15,7 +15,7 @@
                 fixed="left"
                 :align="'center'"
                 />
-            </template>
+                </template>
             <!-- 序号 -->
             <template v-if="!hideConfig.includes('serial')">
                 <el-table-column
@@ -25,19 +25,26 @@
                 fixed="left"
                 label="序号"
                 />
+                </template>
+            <template v-for="(colItem, index) in columns">
+                <ETableColumn
+                :column="colItem"
+                :tableFrom="tableFrom" 
+                :key="colItem.label + index"
+                @dataChange="dataChange"
+                ></ETableColumn>
             </template>
-            <ColumnItem :columns="columns" :tableFrom="tableFrom"></ColumnItem>
         </el-table>
       </el-form>
     </div>
 </template>
 
 <script>
-import ColumnItem from "./ColumnItem";
+import ETableColumn from "./ETableColumn";
 export default {
   name: "EditTable",
   components: {
-    ColumnItem
+    ETableColumn
   },
   props: {
     data: {
@@ -126,6 +133,9 @@ export default {
       } else {
         return Promise.resolve(this.tableData.value);
       }
+    },
+    dataChange(val, columns, index) {
+        this.$emit("dataChange", val, columns, index);
     },
   }
 }
