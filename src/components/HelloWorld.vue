@@ -1,6 +1,6 @@
 <template>
   <div class="hello" >
-    <el-button type="primary" @click="transport">手动埋点</el-button>
+    <!-- <el-button type="primary" @click="transport">手动埋点</el-button>
     <div class="table_box">
       <el-table
         ref="myTable"
@@ -33,15 +33,8 @@
           label="邮编">
         </el-table-column>
       </el-table>
-    </div>
-    <EditTable 
-      ref="EditTable"
-      :data="tableInfo.data" 
-      :columns="tableInfo.columns"
-      :rules="tableInfo.rules"
-      :hideConfig="tableInfo.hideConfig"
-    ></EditTable>
-    <ETableHeaderOne
+    </div> -->
+    <!-- <ETableHeaderOne
       ref="ETableHeaderOne"
       :data="tableInfo.data" 
       :columns="tableInfo.columns"
@@ -49,7 +42,7 @@
       :hideConfig="tableInfo.hideConfig"
       @dataChange="dataChange"
       >
-    </ETableHeaderOne>
+    </ETableHeaderOne> -->
     <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :data="tableInfo.data" 
@@ -58,20 +51,35 @@
       :hideConfig="tableInfo.hideConfig"
       @dataChange="dataChange"
       >
+      <template #userCode="{ scope }">
+        <div>{{ scope.row.userCode }}</div>
+      </template>
+      <template #userName="{ scope }">
+        <div>{{ scope.row.userName }}</div>
+      </template>
+      
     </ETableHeaderTwo>
+    <!-- <aaa :columns="columns">
+      <template #aaa>
+          <div>1111</div>
+      </template>
+      <template #bbb>
+          <div>222</div>
+      </template>
+    </aaa> -->
   </div>
 </template>
 
 <script>
-import EditTable from '@/components/EditTable.vue'
-import ETableHeaderOne from '@/components/ETableHeaderOne'
+import aaa from '@/components/aaa.vue'
+// import ETableHeaderOne from '@/components/ETableHeaderOne'
 import ETableHeaderTwo from '@/components/ETableHeaderTwo'
 export default {
   name: "HelloWorld",
   components: {
-    ETableHeaderOne,
+    // ETableHeaderOne,
     ETableHeaderTwo,
-    EditTable
+    aaa
   },
   props: {
     msg: String,
@@ -112,34 +120,21 @@ export default {
         columns: [
           {
             label: "员工姓名1111",
+            slotname: ['userName'],
             children: [
               {
                 label: "1111",
-                prop: "two",
-                colType: 'input'
-              },
-              {
-                label: "2222",
-                prop: "three",
-                children:[
-                  {
-                    label: "6666",
-                    prop: "66",
-                    colType: 'input'
-                  },
-                  {
-                    label: "777",
-                    prop: "777",
-                    colType: 'input'
-                  },
-                ]
+                slotname: ['userName'],
+                prop: "userName",
+                colType: 'slot'
               },
             ]
           },
           {
             label: "员工号2222",
             prop: "userCode",
-            colType: 'input'
+            slotname: ['userCode'],
+            colType: 'slot'
           },
           {
             label: "角色3333",
@@ -150,23 +145,40 @@ export default {
           two: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
         },
         hideConfig: ['checkbox','serial'],
-      }
+      },
+      columns:[
+        {
+            colType: 'input',
+            prop: 'ccc',
+            slotname: ['bbb'],
+            children: [
+              {
+                slotname: ['bbb'],
+                prop: 'bbb',
+                colType: 'slot'
+              }
+            ]
+        },
+        {
+            slotname: ['aaa'],
+            prop: 'aaa',
+            colType: 'slot'
+        }
+      ]
     }
   },
   mounted() {
     console.log(window.WTJS)
     this.tableInfo.data = [
       {
-        two:'',
         userName:'11',
-        userCode:'111',
-        userRole:'11',
+        userCode:'222',
+        userRole:'3333',
       },
       {
-        two:'',
         userName:'11',
-        userCode:'111',
-        userRole:'11',
+        userCode:'222',
+        userRole:'333',
       }
     ]
   },

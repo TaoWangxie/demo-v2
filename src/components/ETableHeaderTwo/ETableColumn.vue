@@ -11,7 +11,11 @@
         :tableFrom="tableFrom" 
         :key="colItem.label + index"
         @dataChange="dataChange"
-        ></ETableColumn>
+        >
+          <template v-for="(slotname) in colItem.slotname" v-slot:[slotname]="{ scope }">
+            <slot :name="slotname" :scope="scope"></slot> 
+          </template>
+      </ETableColumn>
       </template>
   </el-table-column>
   <el-table-column

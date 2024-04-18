@@ -32,9 +32,14 @@
                 :tableFrom="tableFrom" 
                 :key="colItem.label + index"
                 @dataChange="dataChange"
-                ></ETableColumn>
+                >
+                  <template v-for="(slotname) in colItem.slotname" v-slot:[slotname]="{ scope }">
+                    <slot :name="slotname" :scope="scope"></slot> 
+                  </template>
+                </ETableColumn>
             </template>
         </el-table>
+        
       </el-form>
     </div>
 </template>
@@ -139,15 +144,8 @@ export default {
     },
   }
 }
-
-
 </script>
 <style scoped>
-.Etable ::v-deep .el-form .el-form-item {
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100%;
-}
 .Etable {
   flex: 1;
   position: relative;
@@ -157,6 +155,14 @@ export default {
   background: #fff;
   overflow: hidden;
   padding: 0;
+}
+.Etable ::v-deep .el-form .el-form-item {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+}
+.ETable ::v-deep .el-table tbody tr:last-child > td{
+  border-bottom: none !important;
 }
 </style>
   
