@@ -26,7 +26,7 @@
                 label="序号"
                 />
                 </template>
-            <template v-for="(colItem, index) in columns">
+            <template v-for="(colItem, index) in slotColumns">
                 <ETableColumn
                 :column="colItem"
                 :tableFrom="tableFrom" 
@@ -107,8 +107,39 @@ export default {
         rules: this.rules,
       };
     },
+    slotColumns() {
+      return this.convertColumns(this.columns)
+    }
   },
   methods: {
+    convertColumns(columns) {  
+      return columns.map(column => {  
+        const newColumn = { ...column };  
+        // 初始化 slotname 数组  
+        newColumn.slotname = [];  
+        // 如果当前对象有 children，则遍历它们  
+        if (newColumn.children) {  
+          newColumn.children = newColumn.children.map(child => {  
+            const newChild = { ...child };  
+            // 如果 child 的 colType 是 'slot'，则添加其 prop 到 slotname  
+            if (child.colType === 'slot') {  
+              newChild.slotname = [child.prop];  
+              newColumn.slotname.push(child.prop); // 同时添加到父级的 slotname  
+            }  
+            return newChild;  
+          });  
+        }  
+        // 如果当前对象的 colType 是 'slot'，则添加其 prop 到 slotname  
+        if (newColumn.colType === 'slot') {  
+          newColumn.slotname = [newColumn.prop];  
+          // 如果父对象也有 slotname，合并它们  
+          if (newColumn.slotname.length && newColumn.slotname.indexOf(newColumn.prop) === -1) {  
+            newColumn.slotname = [...new Set([...newColumn.slotname, ...newColumn.children.reduce((acc, child) => acc.concat(child.slotname), newColumn.prop)])]
+          }
+        }
+        return newColumn;
+      });  
+    },
     async confirmRule(params = { mustData: false, noValid: false }){
       let { mustData, noValid } = params;
       if (mustData && !this.tableData.length) return false;

@@ -60,21 +60,11 @@
       <template #userName2="{ scope }">
         <div>{{ scope.row.userName2 }}</div>
       </template>
-      
     </ETableHeaderTwo>
-    <!-- <aaa :columns="columns">
-      <template #aaa>
-          <div>1111</div>
-      </template>
-      <template #bbb>
-          <div>222</div>
-      </template>
-    </aaa> -->
   </div>
 </template>
 
 <script>
-import aaa from '@/components/aaa.vue'
 // import ETableHeaderOne from '@/components/ETableHeaderOne'
 import ETableHeaderTwo from '@/components/ETableHeaderTwo'
 export default {
@@ -82,7 +72,6 @@ export default {
   components: {
     // ETableHeaderOne,
     ETableHeaderTwo,
-    aaa
   },
   props: {
     msg: String,
@@ -123,17 +112,14 @@ export default {
         columns: [
           {
             label: "员工姓名1111",
-            slotname: ['userName','userName2'],
             children: [
               {
                 label: "1111",
-                slotname: ['userName'],
                 prop: "userName",
                 colType: 'slot'
               },
               {
                 label: "2222",
-                slotname: ['userName2'],
                 prop: "userName2",
                 colType: 'slot'
               },
@@ -142,12 +128,17 @@ export default {
           {
             label: "员工号2222",
             prop: "userCode",
-            slotname: ['userCode'],
             colType: 'slot'
           },
           {
             label: "角色3333",
             prop: "userRole",
+            children: [
+              {
+                label: "1111",
+                prop: "userRole2",
+              },
+            ]
           }
         ],
         rules:{
