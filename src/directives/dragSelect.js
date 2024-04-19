@@ -1,7 +1,6 @@
-// directives/dragSelect.js
 
 export default {
-    bind(el){
+    bind(el) {
         let isMouseDown = false;
         let startCell = null;
         let endCell = null;
@@ -28,7 +27,7 @@ export default {
             isMouseDown = false;
         };
         const getTargetCell = (target) => {
-            if(!target) return
+            if (!target) return
             if (target.tagName === 'TD') {
                 return target;
             } else if (target.tagName === 'TR') {
@@ -65,7 +64,7 @@ export default {
                 const maxRowIndex = Math.max(startRowIndex, endRowIndex);
                 const minCellIndex = Math.min(startCellIndex, endCellIndex);
                 const maxCellIndex = Math.max(startCellIndex, endCellIndex);
-                
+
                 // 遍历并设置选中单元格的样式和获取数据
                 for (let i = minRowIndex; i <= maxRowIndex; i++) {
                     const row = rows[i];
@@ -104,12 +103,12 @@ export default {
     unbind(el) {
         // 移除事件监听器
         if (el.handleMouseDown || el.handleMouseMove || el.handleMouseUp) {
-          el.removeEventListener('mousedown', el.handleMouseDown);
-          el.removeEventListener('mousemove', el.handleMouseMove);
-          el.removeEventListener('mouseup', el.handleMouseUp);
-          el.handleMouseDown = null; // 清除引用
-          el.handleMouseMove = null; // 清除引用
-          el.handleMouseUp = null; // 清除引用
+            el.removeEventListener('mousedown', el.handleMouseDown);
+            el.removeEventListener('mousemove', el.handleMouseMove);
+            el.removeEventListener('mouseup', el.handleMouseUp);
+            el.handleMouseDown = null; // 清除引用
+            el.handleMouseMove = null; // 清除引用
+            el.handleMouseUp = null; // 清除引用
         }
-      }
-  };
+    }
+};

@@ -1,6 +1,6 @@
 <template>
   <div class="hello" >
-    <!-- <el-button type="primary" @click="transport">手动埋点</el-button>
+    <el-button type="primary" @click="transport">手动埋点</el-button>
     <div class="table_box">
       <el-table
         ref="myTable"
@@ -33,16 +33,7 @@
           label="邮编">
         </el-table-column>
       </el-table>
-    </div> -->
-    <!-- <ETableHeaderOne
-      ref="ETableHeaderOne"
-      :data="tableInfo.data" 
-      :columns="tableInfo.columns"
-      :rules="tableInfo.rules"
-      :hideConfig="tableInfo.hideConfig"
-      @dataChange="dataChange"
-      >
-    </ETableHeaderOne> -->
+    </div>
     <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :data="tableInfo.data" 
