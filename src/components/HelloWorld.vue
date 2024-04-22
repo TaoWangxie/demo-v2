@@ -1,6 +1,6 @@
 <template>
   <div class="hello" >
-    <el-button type="primary" @click="transport">手动埋点</el-button>
+    <!-- <el-button type="primary" @click="transport">手动埋点</el-button>
     <div class="table_box">
       <el-table
         ref="myTable"
@@ -33,8 +33,8 @@
           label="邮编">
         </el-table-column>
       </el-table>
-    </div>
-    <ETableHeaderTwo
+    </div> -->
+    <!-- <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :data="tableInfo.data" 
       :columns="tableInfo.columns"
@@ -51,7 +51,20 @@
       <template #userName2="{ scope }">
         <div>{{ scope.row.userName2 }}</div>
       </template>
+    </ETableHeaderTwo> -->
+    <div class="table_box">
+    <ETableHeaderTwo
+      v-drag-select2
+      ref="ETableHeaderTwo"
+      :border="true"
+      :data="tableInfo.data" 
+      :columns="tableInfo.columns"
+      :rules="tableInfo.rules"
+      :hideConfig="tableInfo.hideConfig"
+      @dataChange="dataChange"
+      >
     </ETableHeaderTwo>
+  </div>
   </div>
 </template>
 
@@ -103,33 +116,18 @@ export default {
         columns: [
           {
             label: "员工姓名1111",
-            children: [
-              {
-                label: "1111",
-                prop: "userName",
-                colType: 'slot'
-              },
-              {
-                label: "2222",
-                prop: "userName2",
-                colType: 'slot'
-              },
-            ]
+            prop: "userName",
+            colType: 'input'
           },
           {
             label: "员工号2222",
             prop: "userCode",
-            colType: 'slot'
+            colType: 'input'
           },
           {
             label: "角色3333",
             prop: "userRole",
-            children: [
-              {
-                label: "1111",
-                prop: "userRole2",
-              },
-            ]
+            colType: 'input'
           }
         ],
         rules:{
@@ -163,13 +161,46 @@ export default {
     this.tableInfo.data = [
       {
         userName:'11',
-        userName2:'1122',
         userCode:'222',
         userRole:'3333',
       },
       {
         userName:'11',
-        userName2:'1122',
+        userCode:'222',
+        userRole:'333',
+      },
+      {
+        userName:'11',
+        userCode:'222',
+        userRole:'333',
+      }
+      ,
+      {
+        userName:'11',
+        userCode:'222',
+        userRole:'333',
+      }
+      ,
+      {
+        userName:'11',
+        userCode:'222',
+        userRole:'333',
+      }
+      ,
+      {
+        userName:'11',
+        userCode:'222',
+        userRole:'333',
+      }
+      ,
+      {
+        userName:'11',
+        userCode:'222',
+        userRole:'333',
+      }
+      ,
+      {
+        userName:'11',
         userCode:'222',
         userRole:'333',
       }

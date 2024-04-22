@@ -5,17 +5,19 @@ import { vuePlugin } from "@js-wtao/vue";
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import dragSelect from '@/directives/dragSelect';
+import dragSelect2 from '@/directives/dragSelect2';
 
 Vue.directive('drag-select', dragSelect);
+Vue.directive('drag-select2', dragSelect2);
 
 window.WTJS = init({
-    // set debug true to convenient debugger in dev,set false in prod
-    debug: true,
-    silentConsole: true,
-    vue: Vue,
-    dsn: 'https://test.com/yourInterface',
-    maxBreadcrumbs: 100
-},[vuePlugin])
+  // set debug true to convenient debugger in dev,set false in prod
+  debug: true,
+  silentConsole: true,
+  vue: Vue,
+  dsn: 'https://test.com/yourInterface',
+  maxBreadcrumbs: 100
+}, [vuePlugin])
 
 Vue.use(ElementUI);
 
