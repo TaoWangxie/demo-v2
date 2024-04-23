@@ -54,10 +54,9 @@
     </ETableHeaderTwo> -->
     <div class="table_box">
     <ETableHeaderTwo
-      v-drag-select2
       ref="ETableHeaderTwo"
       :border="true"
-      :data="tableInfo.data" 
+      :data.sync="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
       :hideConfig="tableInfo.hideConfig"
@@ -161,52 +160,43 @@ export default {
     this.tableInfo.data = [
       {
         userName:'11',
-        userCode:'222',
-        userRole:'3333',
+        userCode:'22',
+        userRole:'33',
       },
       {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
+        userName:'111',
+        userCode:'',
+        userRole:'',
       },
       {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
+        userName:'',
+        userCode:'',
+        userRole:'',
       }
       ,
       {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
+        userName:'',
+        userCode:'',
+        userRole:'',
       }
       ,
       {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
+        userName:'',
+        userCode:'',
+        userRole:'',
       }
       ,
       {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
-      }
-      ,
-      {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
-      }
-      ,
-      {
-        userName:'11',
-        userCode:'222',
-        userRole:'333',
+        userName:'',
+        userCode:'',
+        userRole:'',
       }
     ]
   },
   methods: {
+    callBack(val){
+      console.log(val)
+    },
     dataChange(val){
       console.log(val)
     },
@@ -229,6 +219,7 @@ export default {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* 标准语法 */
+  padding: 20px;
 }
 </style>
 

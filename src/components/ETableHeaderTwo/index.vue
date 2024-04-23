@@ -6,7 +6,7 @@
         :model="tableFrom"
         :rules="tableFrom.rules"
       >
-        <el-table v-bind="bindTable" :data="tableFrom.data">
+        <el-table v-drag-select2="callBack" v-bind="bindTable" :data="tableFrom.data">
            <!-- 多选 -->
             <template v-if="!hideConfig.includes('checkbox')">
                 <el-table-column
@@ -39,7 +39,6 @@
                 </ETableColumn>
             </template>
         </el-table>
-        
       </el-form>
     </div>
 </template>
@@ -112,6 +111,18 @@ export default {
     }
   },
   methods: {
+    callBack(selectedData,startCellPos){
+      let startCellProp = this.columns[startCellPos[1]].prop
+      let startCellVal = this.tableData[startCellPos[0]][startCellProp]
+      let rows = selectedData.map((item)=>item.row)
+      console.log(startCellVal,startCellPos,selectedData)
+      this.tableData.forEach((item,index)=>{
+        if(rows.includes(index)){
+          item[startCellProp] = startCellVal
+        }
+      })
+      this.$emit('update:data', this.tableData);
+    },
     convertColumns(columns) {  
       return columns.map(column => {  
         const newColumn = { ...column };  
