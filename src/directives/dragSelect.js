@@ -96,61 +96,6 @@ export default {
                 console.log(selectedData);
             }
         };
-        // const highlightCells = () => {
-        //     const cells = table.querySelectorAll('td');
-        //     cells.forEach(cell => {
-        //         cell.style.backgroundColor = '';
-        //         // 清除之前可能存在的小方块  
-        //         const smallSquare = cell.querySelector('.small-square');
-        //         if (smallSquare) {
-        //             cell.removeChild(smallSquare);
-        //         }
-        //     });
-
-        //     if (startCell && endCell) {
-        //         const startRowIndex = startCell.parentNode.rowIndex;
-        //         const startCellIndex = startCell.cellIndex;
-        //         const endRowIndex = endCell.parentNode.rowIndex;
-        //         const endCellIndex = endCell.cellIndex;
-        //         const tbody = table.querySelector('tbody');
-        //         const rows = Array.from(tbody.getElementsByTagName('tr'));
-        //         const minRowIndex = Math.min(startRowIndex, endRowIndex);
-        //         const maxRowIndex = Math.max(startRowIndex, endRowIndex);
-        //         const minCellIndex = Math.min(startCellIndex, endCellIndex);
-        //         const maxCellIndex = Math.max(startCellIndex, endCellIndex);
-
-        //         for (let i = minRowIndex; i <= maxRowIndex; i++) {
-        //             const row = rows[i];
-        //             if (row) {
-        //                 const cells = Array.from(row.getElementsByTagName('td'));
-        //                 for (let j = minCellIndex; j <= maxCellIndex; j++) {
-        //                     const cell = cells[j];
-        //                     if (cell) {
-        //                         cell.style.backgroundColor = 'rgba(0, 0, 255, 0.4)';
-        //                         const rowIndex = i;
-        //                         const columnIndex = j;
-        //                         const cellData = { row: rowIndex, column: columnIndex, value: cell.textContent };
-        //                         selectedData.push(cellData);
-
-        //                         // 如果是最后一个单元格，添加小方块  
-        //                         if (i === maxRowIndex && j === maxCellIndex) {
-        //                             const smallSquare = document.createElement('div');
-        //                             smallSquare.className = 'small-square';
-        //                             smallSquare.style.position = 'absolute';
-        //                             smallSquare.style.right = '0px';
-        //                             smallSquare.style.bottom = '0px';
-        //                             smallSquare.style.width = '8px';
-        //                             smallSquare.style.height = '8px';
-        //                             smallSquare.style.backgroundColor = 'blue';
-        //                             smallSquare.style.zIndex = '9';
-        //                             cell.appendChild(smallSquare);
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // };
         table.addEventListener('mousedown', el.handleMouseDown)
         table.addEventListener('mousemove', el.handleMouseMove)
         table.addEventListener('mouseup', el.handleMouseUp)

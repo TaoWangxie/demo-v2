@@ -56,6 +56,7 @@
     <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :border="true"
+      :isSelectCopy="true"
       :data.sync="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
@@ -116,7 +117,17 @@ export default {
           {
             label: "员工姓名1111",
             prop: "userName",
-            colType: 'input'
+            children:[
+              {
+                label: "年度标准",
+                prop: "code4",
+                colType: 'input',
+              },
+              {
+                label: "季度标准",
+                prop: "code5",
+              },
+            ]
           },
           {
             label: "员工号2222",
@@ -162,34 +173,33 @@ export default {
         userName:'11',
         userCode:'22',
         userRole:'33',
+        code4:'666',
       },
       {
         userName:'111',
         userCode:'',
         userRole:'',
+        code4:'',
       },
       {
         userName:'',
         userCode:'',
         userRole:'',
+        code4:'',
       }
       ,
       {
         userName:'',
         userCode:'',
         userRole:'',
+        code4:'',
       }
       ,
       {
         userName:'',
         userCode:'',
         userRole:'',
-      }
-      ,
-      {
-        userName:'',
-        userCode:'',
-        userRole:'',
+        code4:'',
       }
     ]
   },
@@ -215,10 +225,6 @@ export default {
 <style scoped>
 .table_box{
   width: 700px;
-  -webkit-user-select: none; /* Chrome, Safari, Android */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+/Edge */
-  user-select: none; /* 标准语法 */
   padding: 20px;
 }
 </style>

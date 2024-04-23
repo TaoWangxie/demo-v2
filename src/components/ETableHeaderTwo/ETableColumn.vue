@@ -30,6 +30,7 @@
             <el-form-item
             :prop="'data.' + scope.$index + `.${column.prop}`"
             :rules="tableFrom.rules ? tableFrom.rules[column.prop] : []"
+            :data-prop="column.prop"
             >
               <slot :name="column.prop" :scope="scope" />
             </el-form-item>
@@ -38,6 +39,7 @@
           <el-form-item
               :prop="'data.' + scope.$index + `.${column.prop}`"
               :rules="tableFrom.rules ? tableFrom.rules[column.prop] : []"
+              :data-prop="column.prop"
           >
               <el-input
               v-model="scope.row[column.prop]"
