@@ -112,12 +112,12 @@ export default {
             }
         };
 
-        const clearHighlight = () => {
-            const existingHighlight = table.querySelector('.cell-highlight-wrapper');
-            if (existingHighlight) {
-                existingHighlight.parentNode.removeChild(existingHighlight);
-            }
-        };
+        // const clearHighlight = () => {
+        //     const existingHighlight = table.querySelector('.cell-highlight-wrapper');
+        //     if (existingHighlight) {
+        //         existingHighlight.parentNode.removeChild(existingHighlight);
+        //     }
+        // };
         // 并在需要时调用 clearHighlight 函数来清除高亮
         table.addEventListener('mousedown', el.handleMouseDown)
         table.addEventListener('mousemove', el.handleMouseMove)
