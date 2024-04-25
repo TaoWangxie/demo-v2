@@ -52,11 +52,11 @@
         <div>{{ scope.row.userName2 }}</div>
       </template>
     </ETableHeaderTwo> -->
-    <!-- <div class="table_box">
+    <div class="table_box">
     <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :border="true"
-      :isSelectCopy="true"
+      
       :data.sync="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
@@ -64,20 +64,20 @@
       @dataChange="dataChange"
       >
     </ETableHeaderTwo>
-  </div> -->
+  </div>
   <textarea ref="clipboardData" id="clipboardData"></textarea>
   </div>
 </template>
 
 <script>
 // import ETableHeaderOne from '@/components/ETableHeaderOne'
-// import ETableHeaderTwo from '@/components/ETableHeaderTwo'
+import ETableHeaderTwo from '@/components/ETableHeaderTwo'
 import * as XLSX from 'xlsx';
 export default {
   name: "HelloWorld",
   components: {
     // ETableHeaderOne,
-    // ETableHeaderTwo,
+    ETableHeaderTwo,
   },
   props: {
     msg: String,
@@ -169,8 +169,6 @@ export default {
     }
   },
   mounted() {
-    // 监听粘贴事件
-    this.$refs.clipboardData.addEventListener('paste', this.handlePaste);
     this.tableInfo.data = [
       {
         userName:'11',
@@ -189,15 +187,19 @@ export default {
         userCode:'',
         userRole:'',
         code4:'',
-      }
-      ,
+      },
       {
         userName:'',
         userCode:'',
         userRole:'',
         code4:'',
-      }
-      ,
+      },
+      {
+        userName:'',
+        userCode:'',
+        userRole:'',
+        code4:'',
+      },
       {
         userName:'',
         userCode:'',
@@ -207,52 +209,6 @@ export default {
     ]
   },
   methods: {
-    async handlePaste(e) {
-      try {
-        // 获取剪贴板中的文本数据
-        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-        // 按行分割文本数据
-        const lines = text.split('\n');
-        // 初始化一个空数组来存储解析后的数据
-        const parsedData = [];
-        // 遍历每一行
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          // 按列分割每一行的数据
-          const cells = line.split('\t'); // 假设数据是用制表符分隔的
-          // 遍历每个单元格
-          for (let j = 0; j < cells.length; j++) {
-            const cell = cells[j].trim(); // 去除单元格内的空白字符
-            // 将单元格数据及其行列位置存储到解析后的数组中
-            parsedData.push({
-              value: cell,
-              row: i + 1, // 行号通常是从1开始的
-              col: j + 1  // 列号通常也是从1开始的
-            });
-          }
-        }
-        // 输出解析后的数据
-        console.log(parsedData);
-        // 在这里可以进一步处理parsedData，比如显示在页面上或发送到服务器
-      } catch (error) {
-        console.error('Error reading clipboard data:', error);
-      }
-    },
-    extractData(data) {
-      console.log(XLSX)
-      const workbook = XLSX.read(data, { type: 'clipboard' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      for (let row = 0; row < jsonData.length; row++) {
-        for (let col = 0; col < jsonData[row].length; col++) {
-          const value = jsonData[row][col];
-          const rowNumber = row + 1;
-          const columnNumber = col + 1;
-          console.log('Row:', rowNumber, 'Column:', columnNumber, 'Value:', value);
-        }
-      }
-    },
 
     callBack(val){
       console.log(val)

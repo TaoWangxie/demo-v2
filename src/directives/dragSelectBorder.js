@@ -76,10 +76,10 @@ export default {
             // 将高亮div添加到tbody中  
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.getElementsByTagName('tr'));
-            const fristCells = Array.from(rows[minRowIndex].getElementsByTagName('td'));
-            const lastCells = Array.from(rows[maxCellIndex].getElementsByTagName('td'));
-            const firstCellRect = fristCells[minCellIndex].getBoundingClientRect();
-            const lastCellRect = lastCells[maxCellIndex].getBoundingClientRect();
+            const fristCells = Array.from(rows[minRowIndex]?.getElementsByTagName('td'));
+            const lastCells = Array.from(rows[maxRowIndex]?.getElementsByTagName('td'));
+            const firstCellRect = fristCells[minCellIndex]?.getBoundingClientRect();
+            const lastCellRect = lastCells[maxCellIndex]?.getBoundingClientRect();
             // 计算并设置高亮div的位置和大小  
             highlightWrapper.style.left = `${firstCellRect.left - tableRect.left - 1}px`;
             highlightWrapper.style.top = `${firstCellRect.top - tableRect.top - 1}px`;

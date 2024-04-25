@@ -6,7 +6,7 @@
         :model="tableFrom"
         :rules="tableFrom.rules"
       >
-        <el-table v-drag-select2="{callBack:callBack,isSelectCopy:isSelectCopy}" v-bind="bindTable" :data="tableFrom.data">
+        <el-table v-excel-paste="handleParsedData" v-drag-select2="{callBack:callBack,isSelectCopy:isSelectCopy}" v-bind="bindTable" :data="tableFrom.data">
            <!-- 多选 -->
             <template v-if="!hideConfig.includes('checkbox')">
                 <el-table-column
@@ -115,6 +115,13 @@ export default {
     }
   },
   methods: {
+    handleParsedData(parsedData,startCellPos,prop){
+      let col1Parsed = parsedData.filter((item)=>item.col == 1)
+      for (let i = startCellPos.rowIndex; i < this.tableData.length; i++) {
+        if(!col1Parsed.length) return
+        this.tableData[i][prop] = col1Parsed.shift().value
+      }
+    },
     callBack(selectedData,startCellPos, prop){
       let startCellVal = this.tableData[startCellPos[0]][prop]
       let rows = selectedData.map((item)=>item.row)
