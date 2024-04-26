@@ -6,7 +6,7 @@
         :model="tableFrom"
         :rules="tableFrom.rules"
       >
-        <el-table v-excel-paste="handleParsedData" v-drag-select2="{callBack:callBack,isSelectCopy:isSelectCopy}" v-bind="bindTable" :data="tableFrom.data">
+        <el-table v-excel-paste="handleParsedData" v-drag-select-copy="{callBack:callBack,isSelectCopy:isSelectCopy}" v-bind="bindTable" :data="tableFrom.data">
            <!-- 多选 -->
             <template v-if="!hideConfig.includes('checkbox')">
                 <el-table-column

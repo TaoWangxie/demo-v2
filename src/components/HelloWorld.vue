@@ -56,7 +56,7 @@
     <ETableHeaderTwo
       ref="ETableHeaderTwo"
       :border="true"
-      
+      :isSelectCopy="true"
       :data.sync="tableInfo.data" 
       :columns="tableInfo.columns"
       :rules="tableInfo.rules"
@@ -72,7 +72,6 @@
 <script>
 // import ETableHeaderOne from '@/components/ETableHeaderOne'
 import ETableHeaderTwo from '@/components/ETableHeaderTwo'
-import * as XLSX from 'xlsx';
 export default {
   name: "HelloWorld",
   components: {

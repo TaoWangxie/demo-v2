@@ -5,11 +5,15 @@ import App from './App.vue'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import dragSelect from '@/directives/dragSelect';
-import dragSelect2 from '@/directives/dragSelectBorder';
+import dragSelectBorder from '@/directives/dragSelectBorder';
+import dragSelectCopy from '@/directives/dragSelectCopy';
 import execlPaste from '@/directives/execlPaste';
 
+dragSelectCopy
+
 Vue.directive('drag-select', dragSelect);
-Vue.directive('drag-select2', dragSelect2);
+Vue.directive('drag-select-border', dragSelectBorder);
+Vue.directive('drag-select-copy', dragSelectCopy);
 Vue.directive('excel-paste', execlPaste);
 // window.WTJS = init({
 //   // set debug true to convenient debugger in dev,set false in prod
