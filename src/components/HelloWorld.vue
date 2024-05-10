@@ -1,5 +1,5 @@
 <template>
-  <div class="hello" >
+  <div class="hello">
     <!-- <el-button type="primary" @click="transport">手动埋点</el-button>
     <div class="table_box">
       <el-table
@@ -45,27 +45,19 @@
       <template #userCode="{ scope }">
         <div>{{ scope.row.userCode }}</div>
       </template>
-      <template #userName="{ scope }">
+<template #userName="{ scope }">
         <div>{{ scope.row.userName }}</div>
       </template>
-      <template #userName2="{ scope }">
+<template #userName2="{ scope }">
         <div>{{ scope.row.userName2 }}</div>
       </template>
-    </ETableHeaderTwo> -->
+</ETableHeaderTwo> -->
     <div class="table_box">
-    <ETableHeaderTwo
-      ref="ETableHeaderTwo"
-      :border="true"
-      :isSelectCopy="true"
-      :data.sync="tableInfo.data" 
-      :columns="tableInfo.columns"
-      :rules="tableInfo.rules"
-      :hideConfig="tableInfo.hideConfig"
-      @dataChange="dataChange"
-      >
-    </ETableHeaderTwo>
-  </div>
-  <textarea ref="clipboardData" id="clipboardData"></textarea>
+      <ETableHeaderTwo ref="ETableHeaderTwo" :border="true" :isSelectCopy="true" :data.sync="tableInfo.data"
+        :columns="tableInfo.columns" :rules="tableInfo.rules" :hideConfig="tableInfo.hideConfig"
+        @dataChange="dataChange">
+      </ETableHeaderTwo>
+    </div>
   </div>
 </template>
 
@@ -112,13 +104,13 @@ export default {
         address: '上海市普',
         zip: 200333
       }],
-      tableInfo:{
+      tableInfo: {
         data: [],
         columns: [
           {
             label: "员工姓名1111",
             prop: "userName",
-            children:[
+            children: [
               {
                 label: "年度标准",
                 prop: "code4",
@@ -141,28 +133,28 @@ export default {
             colType: 'input'
           }
         ],
-        rules:{
+        rules: {
           two: [{ required: true, message: '请输入员工号', trigger: ['blur'] }],
         },
-        hideConfig: ['checkbox','serial'],
+        hideConfig: ['checkbox', 'serial'],
       },
-      columns:[
+      columns: [
         {
-            colType: 'input',
-            prop: 'ccc',
-            slotname: ['bbb'],
-            children: [
-              {
-                slotname: ['bbb'],
-                prop: 'bbb',
-                colType: 'slot'
-              }
-            ]
+          colType: 'input',
+          prop: 'ccc',
+          slotname: ['bbb'],
+          children: [
+            {
+              slotname: ['bbb'],
+              prop: 'bbb',
+              colType: 'slot'
+            }
+          ]
         },
         {
-            slotname: ['aaa'],
-            prop: 'aaa',
-            colType: 'slot'
+          slotname: ['aaa'],
+          prop: 'aaa',
+          colType: 'slot'
         }
       ]
     }
@@ -170,52 +162,52 @@ export default {
   mounted() {
     this.tableInfo.data = [
       {
-        userName:'11',
-        userCode:'22',
-        userRole:'33',
-        code4:'666',
+        userName: '11',
+        userCode: '22',
+        userRole: '33',
+        code4: '666',
       },
       {
-        userName:'111',
-        userCode:'',
-        userRole:'',
-        code4:'',
+        userName: '111',
+        userCode: '',
+        userRole: '',
+        code4: '',
       },
       {
-        userName:'',
-        userCode:'',
-        userRole:'',
-        code4:'',
+        userName: '',
+        userCode: '',
+        userRole: '',
+        code4: '',
       },
       {
-        userName:'',
-        userCode:'',
-        userRole:'',
-        code4:'',
+        userName: '',
+        userCode: '',
+        userRole: '',
+        code4: '',
       },
       {
-        userName:'',
-        userCode:'',
-        userRole:'',
-        code4:'',
+        userName: '',
+        userCode: '',
+        userRole: '',
+        code4: '',
       },
       {
-        userName:'',
-        userCode:'',
-        userRole:'',
-        code4:'',
+        userName: '',
+        userCode: '',
+        userRole: '',
+        code4: '',
       }
     ]
   },
   methods: {
 
-    callBack(val){
+    callBack(val) {
       console.log(val)
     },
-    dataChange(val){
+    dataChange(val) {
       console.log(val)
     },
-    async transport(){
+    async transport() {
       let aa = await this.$refs.EditTable.confirmRule()
       console.log(aa)
       // window.WTJS.transport.send({
@@ -228,9 +220,8 @@ export default {
 };
 </script>
 <style scoped>
-.table_box{
+.table_box {
   width: 700px;
   padding: 20px;
 }
 </style>
-
