@@ -1,18 +1,24 @@
 <template>
-    <div class="WorkSpace">
-        <Header></Header>
+    <div class="workSpace">
+        <Left></Left>
     </div>
 </template>
 
 <script>
-import Header from './components/header'
+import Left from './components/left'
 export default {
     name: "WorkSpace",
     components: {
-        Header
+        Left
     },
 };
 </script>
 
 <style scoped>
+.workSpace{
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
 </style>
