@@ -20,7 +20,7 @@ export const routes = [
             },
             {
                 path: '/dataConfig',
-                name: 'DataConfig',
+                name: 'dataConfig',
                 component: () => import('@/views/dataConfig'),
                 mate: {
                     title: ' 数据配置中心'
