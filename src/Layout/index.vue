@@ -23,10 +23,11 @@
 import Nav from "@/Layout/components/nav";
 import Side from "@/Layout/components/side";
 export default {
-    components: {
-        Nav,
-        Side
-    },
+  name: "layoutA",
+  components: {
+    Nav,
+    Side,
+  },
 };
 </script>
 
@@ -38,7 +39,7 @@ export default {
     display: flex;
     height: calc(100vh - 50px);
     overflow: hidden;
-    background-color: #F5F7FA;
+    background-color: #f5f7fa;
     .main {
       flex: 1;
       width: 0;
