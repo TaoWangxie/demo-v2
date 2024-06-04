@@ -13,6 +13,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 //   dsn: 'https://test.com/yourInterface',
 //   maxBreadcrumbs: 100
 // }, [vuePlugin])
+import BaiduMap from 'vue-baidu-map'
+Vue.use(BaiduMap, {
+  ak: '03EV2mS83xtLoifvHnRm5MTx5krHDIg0' // 百度地图秘钥
+})
+
 
 import dragSelect from '@/directives/dragSelect';
 import dragSelectBorder from '@/directives/dragSelectBorder';
