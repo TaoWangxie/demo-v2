@@ -34,7 +34,7 @@ export default {
         };
     },
     methods:{
-      handleDragStart(e){
+      handleDragStart(){
 
       },
       handleDragEnd(){}
