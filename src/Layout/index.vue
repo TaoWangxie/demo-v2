@@ -23,10 +23,10 @@
 import Nav from "@/Layout/components/nav";
 import Side from "@/Layout/components/side";
 export default {
-  name: "layoutA",
+  name: 'LayoutA',
   components: {
     Nav,
-    Side,
+    Side
   },
 };
 </script>
@@ -35,11 +35,13 @@ export default {
 .layout {
   display: flex;
   flex-direction: column;
+
   .container {
     display: flex;
     height: calc(100vh - 50px);
     overflow: hidden;
-    background-color: #f5f7fa;
+    background-color: #F5F7FA;
+
     .main {
       flex: 1;
       width: 0;
@@ -48,6 +50,7 @@ export default {
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
+
       .content {
         width: 100%;
         height: 100%;
