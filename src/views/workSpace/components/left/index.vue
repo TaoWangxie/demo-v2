@@ -1,40 +1,40 @@
 <template>
   <div class="left_container">
     <div class="left_content">
-      <Tab :list="tabList" :tabKey="configTab" @changeTab="changeTab"></Tab>
+      <TabCom :list="tabList" :tabKey="configTab" @changeTab="changeTab"></TabCom>
       <Coms v-show="configTab === 'coms'"></Coms>
     </div>
   </div>
 </template>
 <script>
-import Tab from './components/tab'
+import TabCom from './components/tabCom'
 import Coms from './components/coms'
 export default {
-    name: "LeftContainer",
-    components: {
-      Tab,
-      Coms
+  name: "LeftContainer",
+  components: {
+    TabCom,
+    Coms
+  },
+  data() {
+    return {
+      configTab: "coms",
+      tabList: [
+        {
+          key: "coms",
+          icon: "com",
+        },
+        {
+          key: "layer",
+          icon: "layer",
+        },
+      ]
+    };
+  },
+  methods: {
+    changeTab(val) {
+      this.configTab = val;
     },
-    data() {
-        return {
-          configTab: "coms",
-          tabList:[
-            {
-              key: "coms",
-              icon: "com",
-            },
-            {
-              key: "layer",
-              icon: "layer",
-            },
-          ]
-        };
-    },
-    methods:{
-      changeTab(val){
-        this.configTab = val;
-      },
-    }
+  }
 };
 </script>
 
@@ -45,6 +45,7 @@ export default {
   z-index: 1;
   flex-shrink: 0;
 }
+
 .left_content {
   width: 100%;
   height: 100%;
@@ -52,4 +53,3 @@ export default {
   border-right: 1px solid #e4e7ed;
 }
 </style>
-  
