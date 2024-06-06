@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: "GoEasyAudioPlayer",
+  name: "AudioPlayer",
   props: ["src", "duration"],
   data() {
     return {

@@ -54,7 +54,7 @@ export default {
         {
           senderId: "11",
           payload: {
-            text: "44444444",
+            text: "2222333122[么么哒][便便]1232222333122222223331222222333122222233312222233312222223331223",
           },
           timestamp: "",
           type: "text",
@@ -102,6 +102,15 @@ export default {
           timestamp: "",
           type: "video",
         },
+        {
+          senderId: "222",
+          payload: {
+            latitude: 40.7128,
+            longitude: -74.006,
+          },
+          timestamp: 1717659570319,
+          type: "map",
+        },
       ],
       currentUser: {
         avatar:
@@ -124,6 +133,6 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 @import "./chat.css";
 </style>

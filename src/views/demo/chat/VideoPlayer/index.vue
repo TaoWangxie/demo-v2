@@ -5,7 +5,7 @@
       <div class="icon"></div>
     </div>
     <video
-      ref="goEasyVideoPlayer"
+      ref="VideoPlayer"
       class="video-player"
       controls=""
       v-show="show"
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: "GoEasyVideoPlayer",
+  name: "VideoPlayer",
   props: {
     video: {
       type: Object,
@@ -38,30 +38,27 @@ export default {
     callFullScreen() {
       this.show = true;
       let self = this,
-        goEasyVideoPlayer = this.$refs.goEasyVideoPlayer,
+        VideoPlayer = this.$refs.VideoPlayer,
         requestMethod =
-          goEasyVideoPlayer.requestFullscreen ||
-          goEasyVideoPlayer.webkitRequestFullScreen ||
-          goEasyVideoPlayer.mozRequestFullScreen ||
-          goEasyVideoPlayer.msRequestFullscreen;
-      goEasyVideoPlayer.play();
+          VideoPlayer.requestFullscreen ||
+          VideoPlayer.webkitRequestFullScreen ||
+          VideoPlayer.mozRequestFullScreen ||
+          VideoPlayer.msRequestFullscreen;
+      VideoPlayer.play();
       if (requestMethod) {
-        requestMethod.call(goEasyVideoPlayer);
+        requestMethod.call(VideoPlayer);
       }
       function pauseWhenQuitFullScreen() {
-        if (goEasyVideoPlayer.played && !document.webkitIsFullScreen) {
-          goEasyVideoPlayer.pause();
+        if (VideoPlayer.played && !document.webkitIsFullScreen) {
+          VideoPlayer.pause();
           self.show = false;
-          goEasyVideoPlayer.removeEventListener(
+          VideoPlayer.removeEventListener(
             "fullscreenchange",
             pauseWhenQuitFullScreen
           );
         }
       }
-      goEasyVideoPlayer.addEventListener(
-        "fullscreenchange",
-        pauseWhenQuitFullScreen
-      );
+      VideoPlayer.addEventListener("fullscreenchange", pauseWhenQuitFullScreen);
     },
     onLoadEnd() {
       this.$emit("onLoadEnd");
@@ -71,8 +68,6 @@ export default {
 </script>
 
 <style scoped>
-.goeays-video-player {
-}
 .video-snapshot {
   position: relative;
   max-height: 1.5rem;
@@ -82,8 +77,8 @@ export default {
 }
 .video-snapshot .icon {
   position: absolute;
-  width: 0.2rem;
-  height: 0.2rem;
+  width: 0.3rem;
+  height: 0.3rem;
   border-radius: 0.1rem;
   background: url("./images/play.png") no-repeat center;
   background-size: 100%;
