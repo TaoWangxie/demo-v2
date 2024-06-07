@@ -42,7 +42,6 @@ export default {
 
 <style scoped>
 .goeasy-audio-player {
-  margin-top: 0.06rem;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 .audio-facade {

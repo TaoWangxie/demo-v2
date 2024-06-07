@@ -90,7 +90,7 @@
   word-break: break-all;
   text-align: left;
   vertical-align: middle;
-  display: block;
+  display: inline-block;
   box-sizing: border-box;
 }
 .chat-message .text-content img {
