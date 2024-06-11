@@ -2,67 +2,75 @@
   height: 100%;
   width: 100%;
 }
+
 .chat .header {
   width: 100%;
-  height: 0.45rem;
-  line-height: 0.45rem;
-  font-size: 0.18rem;
+  height: 54px; /* 0.45rem * 120px = 54px */
+  line-height: 54px; /* 0.45rem * 120px = 54px */
+  font-size: 21.6px; /* 0.18rem * 120px = 21.6px */
   text-align: center;
   background: rgb(243, 244, 247);
   color: #000000;
   font-weight: bold;
   position: relative;
 }
+
 .chat .header .back-btn {
-  padding: 0 0.2rem;
+  padding: 3.6px 24px; /* 0.2rem * 120px = 24px, 0.03rem * 120px = 3.6px */
   position: absolute;
   left: 0;
   top: 0;
 }
+
 .chat .header .title {
-  font-size: 0.15rem;
+  font-size: 18px; /* 0.15rem * 120px = 18px */
 }
+
 .chat .message-container {
-  padding-bottom: 1rem;
+  padding-bottom: 120px; /* 1rem * 120px = 120px */
   overflow: hidden;
   width: 100%;
   height: 100%;
 }
+
 .chat .message-container .group-member {
-  right: 0.1rem;
-  width: 0.3rem;
-  height: 0.3rem;
-  top: 0.07rem;
+  width: 36px; /* 0.3rem * 120px = 36px */
+  height: 36px; /* 0.3rem * 120px = 36px */
+  top: 8.4px; /* 0.07rem * 120px = 8.4px */
   position: fixed;
-  right: 0.1rem;
-  top: 0.6rem;
+  right: 12px; /* 0.1rem * 120px = 12px */
+  top: 72px; /* 0.6rem * 120px = 72px */
   z-index: 2;
-  border-radius: 0.3rem;
+  border-radius: 36px; /* 0.3rem * 120px = 36px */
   background: #c4c4c4;
   background-size: 80%;
 }
+
 .chat .message-container .history-load-tip {
-  font-size: 0.12rem;
-  height: 0.45rem;
-  line-height: 0.45rem;
+  font-size: 14.4px; /* 0.12rem * 120px = 14.4px */
+  height: 54px; /* 0.45rem * 120px = 54px */
+  line-height: 54px; /* 0.45rem * 120px = 54px */
   width: 100%;
   text-align: center;
   color: grey;
   flex-shrink: 0;
   flex-grow: 0;
 }
+
 .chat .message-container .scroll-view {
   height: 100%;
-  padding-left: 0.1rem;
-  padding-right: 0.1rem;
+  padding-left: 12px; /* 0.1rem * 120px = 12px */
+  padding-right: 12px; /* 0.1rem * 120px = 12px */
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+
 .chat .message-container .scroll-view .time-lag {
-  font-size: 0.1rem;
+  font-size: 12px; /* 0.1rem * 120px = 12px */
   text-align: center;
 }
+
 .chat .img-layer {
   width: 100%;
   height: 100%;
@@ -71,6 +79,7 @@
   align-items: center;
   justify-content: center;
 }
+
 .chat .img-layer img {
   max-width: 100%;
   max-height: 100%;
