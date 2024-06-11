@@ -8,7 +8,7 @@ class EmojiDecoder {
     this.url = url || "";
     this.emojiMap = emojiMap || {};
     for (let i in this.emojiMap) {
-      if (this.emojiMap.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(this.emojiMap, i)) {
         this.patterns.push("(" + i.replace(this.metaChars, "\\$&") + ")");
       }
     }
