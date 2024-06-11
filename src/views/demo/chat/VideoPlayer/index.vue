@@ -70,22 +70,25 @@ export default {
 <style scoped>
 .video-snapshot {
   position: relative;
-  max-height: 1.5rem;
+  max-height: 180px; /* 1.5rem * 120px = 180px */
 }
+
 .video-snapshot img {
-  height: 1.5rem;
+  height: 180px; /* 1.5rem * 120px = 180px */
 }
+
 .video-snapshot .icon {
   position: absolute;
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 0.1rem;
+  width: 36px; /* 0.3rem * 120px = 36px */
+  height: 36px; /* 0.3rem * 120px = 36px */
+  border-radius: 12px; /* 0.1rem * 120px = 12px */
   background: url("./images/play.png") no-repeat center;
   background-size: 100%;
   top: 50%;
   left: 50%;
-  margin: -0.1rem;
+  margin: -12px; /* -0.1rem * 120px = -12px */
 }
+
 .video-player {
   position: fixed;
   top: 0;

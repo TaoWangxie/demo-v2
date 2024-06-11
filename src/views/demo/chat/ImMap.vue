@@ -36,7 +36,6 @@ export default {
 <style lang="scss" scoped>
 .ImMap {
   width: 300px;
-  //   height: 160px;
   background-color: #fff;
   .ImMap_header {
     padding: 10px;

@@ -45,28 +45,31 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 .audio-facade {
-  min-width: 0.15rem;
-  padding: 0.03rem 0.05rem;
-  height: 0.36rem;
-  line-height: 0.3rem;
+  min-width: 18px; /* 0.15rem * 120px = 18px */
+  padding: 3.6px 6px; /* 0.03rem * 120px = 3.6px, 0.05rem * 120px = 6px */
+  height: 36px; /* 0.36rem * 120px = 36px */
+  line-height: 30px; /* 0.3rem * 120px = 30px */
   background: #618dff;
-  font-size: 0.12rem;
-  border-radius: 0.07rem;
+  font-size: 12px; /* 0.12rem * 120px = 12px */
+  border-radius: 8.4px; /* 0.07rem * 120px = 8.4px */
   color: #ffffff;
   display: flex;
 }
+
 .audio-facade-bg {
   background: url("./images/voice.png") no-repeat center;
-  background-size: 0.15rem;
-  width: 0.2rem;
+  background-size: 18px; /* 0.15rem * 120px = 18px */
+  width: 24px; /* 0.2rem * 120px = 24px */
 }
+
 .audio-facade-time {
   display: flex;
   align-items: center;
 }
+
 .audio-facade-bg.play-icon {
   background: url("./images/play.gif") no-repeat center;
-  background-size: 0.15rem;
+  background-size: 18px; /* 0.15rem * 120px = 18px */
   -moz-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
   -o-transform: rotate(180deg);
