@@ -1,11 +1,16 @@
 <template>
-  <div class="Demo"></div>
+  <div class="Demo">
+    <BaiduMap></BaiduMap>
+  </div>
 </template>
 
 <script>
+import BaiduMap from "./BaiduMap.vue";
 export default {
   name: "DemoPage",
-  components: {},
+  components: {
+    BaiduMap,
+  },
   data() {
     return {};
   },
@@ -13,4 +18,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.Demo {
+  height: 100%;
+}
+</style>

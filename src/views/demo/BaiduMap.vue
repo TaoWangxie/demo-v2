@@ -33,7 +33,7 @@
 <script>
 import { BaiduMap, BmlMarkerClusterer, BmMarker } from "vue-baidu-map";
 export default {
-  name: "BaiduMap",
+  name: "BaiduMapCom",
   components: {
     BaiduMap,
     BmlMarkerClusterer,
