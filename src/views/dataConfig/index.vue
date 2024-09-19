@@ -1,15 +1,12 @@
 <template>
-    <div class="DataConfig">
-        DataConfig
-    </div>
+  <div class="DataConfig">DataConfig</div>
 </template>
 
 <script>
 export default {
-    name: "DataConfig",
-    components: {},
+  name: "DataConfig",
+  components: {},
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
