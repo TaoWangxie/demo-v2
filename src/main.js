@@ -10,13 +10,29 @@ import "element-ui/lib/theme-chalk/index.css";
 //   debug: true,
 //   silentConsole: true,
 //   vue: Vue,
-//   dsn: 'https://test.com/yourInterface',
+//   dsn: 'http://82.156.198.41:11112/ceshi',
 //   maxBreadcrumbs: 100
 // }, [vuePlugin])
-import BaiduMap from "vue-baidu-map";
-Vue.use(BaiduMap, {
-  ak: "03EV2mS83xtLoifvHnRm5MTx5krHDIg0", // 百度地图秘钥
-});
+// import BaiduMap from "vue-baidu-map";
+// Vue.use(BaiduMap, {
+//   ak: "03EV2mS83xtLoifvHnRm5MTx5krHDIg0", // 百度地图秘钥
+// });
+const instance = window.TRACK.init({
+  debug: true,
+  apikey: 'sdasda',
+  silentConsole: true,
+  silentXhr: false,
+  maxBreadcrumbs: 20,
+  dsn: 'http://82.156.198.41:11112/ceshi',
+  throttleDelayTime: 0,
+  backTrackerId(){
+      return 'userid' //用户uid
+  },
+  configReportXhr(xhr) {
+      xhr.setRequestHeader('mito-header', 'test123')
+  }
+},[window.TRACK_vue.vuePlugin])
+Vue.prototype.$track = instance;
 
 Vue.prototype.formatDate = function (t) {
   t = t || Date.now();

@@ -7,6 +7,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
   <title>demo-v2</title>
+  <script src="./static/browser.umd.js" type='text/javascript'></script>
+  <script src="./static/vue.umd.js" type='text/javascript'></script>
+  <script>
+    console.log(TRACK,TRACK_vue);
+    window.TRACK = TRACK
+    window.TRACK_vue = TRACK_vue
+  </script>
   <style>
     html {
       font-size: 16px;
@@ -15,12 +22,7 @@
 </head>
 
 <body>
-  <noscript>
-    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
-        Please enable it to continue.</strong>
-  </noscript>
   <div id="app"></div>
-  <!-- built files will be auto injected -->
 </body>
 
 </html>
