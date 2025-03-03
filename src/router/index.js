@@ -44,6 +44,14 @@ export const routes = [
       title: "demo",
     },
   },
+  {
+    path: "/h5Canvas",
+    name: "h5Canvas",
+    component: () => import("@/views/h5Canvas"),
+    mate: {
+      title: "画布",
+    },
+  },
 ];
 
 const router = new VueRouter({
