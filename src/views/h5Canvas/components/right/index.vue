@@ -1,17 +1,27 @@
 <template>
   <div class="right">
     <div class="right_action">
-      <div class="action_btn" @click="deleteCurEl">删除</div>
+      <div
+        :class="['action_btn', currentEle ? 'highlight' : 'disabled']"
+        @click="deleteCurEl"
+      >
+        删除
+      </div>
     </div>
     <div class="right_content">
       <textarea
         type="text"
         v-if="currentEle"
         v-model="currentEle.text"
-        @input="updateMiddleCanvas"
+        @input="updateRander"
         placeholder="输入文本"
       ></textarea>
-      <TableGrid></TableGrid>
+      <TableGrid
+        v-if="currentEle && currentEle.type == 'table'"
+        :key="currentEle.key"
+        :currentEl="currentEle"
+        @updateElTableData="updateElTableData"
+      ></TableGrid>
     </div>
   </div>
 </template>
@@ -47,14 +57,18 @@ export default {
     deleteCurEl() {
       this.$emit("deleteCurEl");
     },
-    updateMiddleCanvas() {
-      this.$emit("updateMiddleCanvas");
+    updateRander() {
+      this.$emit("updateRander");
+    },
+    updateElTableData(data) {
+      this.$set(this.currentEl, "data", data);
+      this.$emit("updateRander");
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .right {
   width: 360px;
   border-left: 1px solid #e4e7ed;
@@ -73,24 +87,22 @@ export default {
   box-sizing: border-box;
 }
 .action_btn {
-  display: flex;
-  font-size: 13px;
   padding: 5px 10px;
-  align-items: center;
-  justify-content: center;
-  color: #f56c6c;
-  background-color: #fff;
+  cursor: pointer;
+  font-size: 12px;
   border-radius: 4px;
-  transition: all 0.3s;
-  user-select: none;
+  display: inline-block;
+  background-color: #f2f6fc;
 }
-.action_btn:hover {
-  box-shadow: 0 0px 10px #ccc;
+.highlight {
+  background-color: #f2f6fc; /* 蓝色 */
+  color: #f56c6c;
   cursor: pointer;
 }
-.action_btn:active {
-  box-shadow: 0 0px 15px #909399;
-  cursor: pointer;
+.disabled {
+  background-color: #fafafa; /* 灰色 */
+  cursor: not-allowed;
+  color: #c0c4cc;
 }
 textarea {
   width: 100%;

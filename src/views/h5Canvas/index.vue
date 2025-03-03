@@ -15,7 +15,7 @@
             @dragleave.prevent="dragleave"
             @dragenter.prevent="dragenter"
             @drop="drop"
-            @click.stop="selectMiddleItem"
+            @click.stop="selectEl"
           >
             <!-- 中间区域内容 -->
           </div>
@@ -25,7 +25,7 @@
       <Right
         :currentEl="currentEl"
         @deleteCurEl="deleteCurEl"
-        @updateMiddleCanvas="updateMiddleCanvas"
+        @updateRander="rander"
       ></Right>
     </div>
   </div>
@@ -52,6 +52,8 @@ export default {
       dragIndex: 0,
       highlightedKey: null, //高亮key
       draggedEl: null, //拖拽元素
+      //上一个高亮的table
+      highlightedTable: null,
     };
   },
   mounted() {
@@ -61,44 +63,7 @@ export default {
     });
   },
   methods: {
-    dragStart(item) {
-      this.draggedEl = item;
-    },
-    dragEnd() {
-      this.draggedEl = null;
-    },
-    drop() {
-      if (this.draggedEl) {
-        let index =
-          this.dragIndex < 0 ? this.middleElementsData.length : this.dragIndex;
-        this.addEl(this.draggedEl, index);
-      }
-    },
-    dragenter(e) {
-      const children = Array.from(this.middle.children);
-      const targetIndex = children.indexOf(e.target);
-      this.dragIndex = targetIndex;
-      if (children && children[targetIndex]) {
-        children[targetIndex].style.borderTop =
-          "20px solid rgb(247.5, 227.1, 196.5)";
-      }
-      if (children && children[children.length - 1] && targetIndex < 0) {
-        children[children.length - 1].style.borderBottom =
-          "20px solid rgb(247.5, 227.1, 196.5)";
-      }
-    },
-    dragleave(e) {
-      const children = Array.from(this.middle.children);
-      const targetIndex = children.indexOf(e.target);
-      if (children) {
-        if (targetIndex < 0) {
-          children[children.length - 1].style.borderBottom = "none";
-        } else {
-          children[targetIndex].style.borderTop = "none";
-        }
-      }
-    },
-    //
+    //===渲染方法===
     rander() {
       while (this.middle.firstChild) {
         this.middle.removeChild(this.middle.firstChild);
@@ -158,6 +123,8 @@ export default {
       // 创建表格元素
       const table = document.createElement("table");
       table.style.width = "100%";
+      table.style.borderLeft = "1px solid #ccc";
+      table.style.borderTop = "1px solid #ccc";
       table.style.tableLayout = "fixed";
       table.setAttribute("border", "0");
       table.setAttribute("cellspacing", "0");
@@ -169,7 +136,8 @@ export default {
         tr.style.height = "30px"; // 保持行高一致
         for (let c = minCol; c <= maxCol; c++) {
           const td = document.createElement("td");
-          td.style.border = "1px solid #eee";
+          td.style.borderRight = "1px solid #ccc";
+          td.style.borderBottom = "1px solid #ccc";
           td.style.textAlign = "center";
           td.style.verticalAlign = "middle";
           td.style.width = `${colWidth}%`; // 设置百分比宽度
@@ -184,27 +152,100 @@ export default {
         }
         table.appendChild(tr);
       }
-
       return table;
     },
 
-    reset() {
-      this.currentEl = null;
-      this.currentIndex = -1;
-      this.highlightedKey = null;
-      this.rander();
+    //===拖拽===
+    dragStart(item) {
+      this.draggedEl = item;
     },
+    dragEnd() {
+      this.draggedEl = null;
+    },
+    drop() {
+      if (this.draggedEl) {
+        let index =
+          this.dragIndex < 0 ? this.middleElementsData.length : this.dragIndex;
+        this.addEl(this.draggedEl, index);
+      }
+    },
+    dragenter(e) {
+      const children = Array.from(this.middle.children);
+      const table = e.target.closest("table");
+      if (table) {
+        //表格
+        const targetIndex = children.indexOf(table);
+        this.dragIndex = targetIndex;
+        // 避免重复添加样式
+        if (this.highlightedTable !== table) {
+          // 移除之前表格的样式
+          if (this.highlightedTable) {
+            this.highlightedTable.style.borderTop = "none";
+            this.highlightedTable.classList.remove("highlight-top");
+          }
+          // 添加新样式并更新引用
+          table.classList.add("highlight-top");
+          this.highlightedTable = table;
+        }
+      } else {
+        const targetIndex = children.indexOf(e.target);
+        this.dragIndex = targetIndex;
+        if (children && children[targetIndex]) {
+          children[targetIndex].classList.add("highlight-top");
+        }
+        if (children && children[children.length - 1] && targetIndex < 0) {
+          children[children.length - 1].classList.add("highlight-bottom");
+        }
+      }
+    },
+    dragleave(e) {
+      const children = Array.from(this.middle.children);
+      const table = e.target.closest("table");
+      if (table) {
+        //表格
+        const targetIndex = children.indexOf(table);
+        // 获取离开时关联的元素
+        const relatedTarget = e.relatedTarget;
+        // 检查离开目标是否仍在表格内部
+        if (
+          this.highlightedTable &&
+          (!relatedTarget || !this.highlightedTable?.contains(relatedTarget))
+        ) {
+          if (targetIndex < 0) {
+            children[children.length - 1].classList.remove("highlight-bottom");
+          } else {
+            this.highlightedTable.classList.remove("highlight-top");
+            this.highlightedTable = null;
+          }
+        }
+      } else {
+        const children = Array.from(this.middle.children);
+        const targetIndex = children.indexOf(e.target);
+        if (children) {
+          if (targetIndex < 0) {
+            children[children.length - 1].classList.remove("highlight-bottom");
+          } else {
+            children[targetIndex].classList.remove("highlight-top");
+          }
+        }
+      }
+    },
+
+    //===操作===
+    //点击添加
     pushEl(item) {
       if (item) {
         let index = this.middleElementsData.length;
         this.addEl(item, index);
       }
     },
+    //点击删除
     deleteCurEl() {
       if (this.currentIndex >= 0) {
         this.deleteEl(this.currentIndex);
       }
     },
+    //添加标签
     addEl(El, index) {
       // 生成唯一的 key
       const uniqueKey = `${Date.now()}-${Math.random()
@@ -217,11 +258,13 @@ export default {
       this.middleElementsData.splice(index, 0, newItem);
       this.rander();
     },
+    //删除标签
     deleteEl(index) {
       this.middleElementsData.splice(index, 1);
       this.reset();
     },
-    selectMiddleItem(event) {
+    //选中标签
+    selectEl(event) {
       const target = event.target;
       const key = target.getAttribute("data-key");
       const ckey = target.getAttribute("data-ckey");
@@ -238,12 +281,11 @@ export default {
         this.rander();
       }
     },
-    handleInput() {
-      if (this.currentEl && this.currentEl.text.length > 100) {
-        this.currentEl.text = this.currentEl.text.slice(0, 100);
-      }
-    },
-    updateMiddleCanvas() {
+    //取消选中标签
+    reset() {
+      this.currentEl = null;
+      this.currentIndex = -1;
+      this.highlightedKey = null;
       this.rander();
     },
   },
@@ -251,6 +293,14 @@ export default {
 </script>
 
 <style lang="scss">
+.highlight-top {
+  border-top: 20px solid rgb(247.5, 227.1, 196.5) !important;
+}
+
+.highlight-bottom {
+  border-bottom: 20px solid rgb(247.5, 227.1, 196.5) !important;
+}
+
 .conrainer {
   width: 100%;
   height: 100vh;
@@ -262,7 +312,7 @@ export default {
   flex: 1;
   display: flex;
   height: calc(100vh - 50px);
-  min-width: 1000px;
+  min-width: 900px;
 }
 
 /* 中间区域样式 */

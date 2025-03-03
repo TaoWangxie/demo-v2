@@ -34,6 +34,8 @@ export default {
             { row: 0, col: 1, text: "B1", key: "0-1" },
             { row: 1, col: 0, text: "A2", key: "1-0" },
             { row: 1, col: 1, text: "B2", key: "1-1" },
+            { row: 2, col: 0, text: "A3", key: "2-0" },
+            { row: 2, col: 1, text: "B3", key: "2-1" },
           ],
         },
       ],

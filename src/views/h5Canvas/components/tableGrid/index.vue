@@ -1,5 +1,16 @@
 <template>
   <div class="grid_box">
+    <div class="grid_action">
+      <p>从第一个格子开始绘制</p>
+      <div>
+        <span @click="reset" :class="[isConfirm ? '' : 'disabled']">重制</span>
+        <span
+          :class="['grid_confirm', isConfirm ? 'highlight' : 'disabled']"
+          @click="confirm"
+          >应用</span
+        >
+      </div>
+    </div>
     <div
       class="grid"
       @mousedown="startSelection"
@@ -25,6 +36,12 @@
 export default {
   name: "tableGrid",
   components: {},
+  props: {
+    currentEl: {
+      type: Object,
+      default: () => {},
+    },
+  },
   data() {
     return {
       grid: Array(10)
@@ -37,20 +54,25 @@ export default {
       isSelecting: false,
       startCell: null,
       hasMoved: false, // 新增移动状态标记
-      selectedCells: [
-        { row: 0, col: 0, text: "A1", key: "0-0" },
-        { row: 0, col: 1, text: "B1", key: "0-1" },
-        { row: 1, col: 0, text: "A2", key: "1-0" },
-        { row: 1, col: 1, text: "B2", key: "1-1" },
-      ],
+      selectedCells: [],
+      isConfirm: false,
     };
   },
-  mounted() {
-    this.init();
+  watch: {
+    currentEl: {
+      handler(n) {
+        let cells = n.data || [];
+        this.init(cells);
+      },
+      deep: true,
+      immediate: true,
+    },
   },
   methods: {
-    init() {
-      this.selectedCells.forEach((item) => {
+    init(cells) {
+      this.clearSelection();
+      this.selectedCells = cells;
+      cells.forEach((item) => {
         let { row, col } = item;
         this.grid[row][col].isSelected = true;
       });
@@ -59,8 +81,8 @@ export default {
       this.isSelecting = true;
       this.hasMoved = false; // 初始化移动状态
       const cell = this.getCellFromEvent(event);
-      if (cell.row != 0 || cell.col != 0) return;
       if (cell) {
+        if (cell.row != 0 || cell.col != 0) return;
         this.startCell = cell;
         this.clearSelection();
       }
@@ -89,9 +111,11 @@ export default {
       });
     },
     endSelection() {
-      // 处理单击选择
       if (this.isSelecting && !this.hasMoved && this.startCell) {
         this.grid[this.startCell.row][this.startCell.col].isSelected = true;
+      }
+      if (this.isSelecting && this.startCell) {
+        this.isConfirm = true;
       }
       this.isSelecting = false;
       this.startCell = null;
@@ -131,11 +155,25 @@ export default {
       });
       return result;
     },
+    reset() {
+      if (this.isConfirm) {
+        console.log("reset");
+        this.isConfirm = false;
+        this.init(this.currentEl.data);
+      }
+    },
+    confirm() {
+      if (this.isConfirm) {
+        console.log("confirm", this.selectedCells);
+        this.$emit("updateElTableData", this.selectedCells);
+        this.isConfirm = false;
+      }
+    },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .grid_box {
   width: 100%;
   text-align: center;
@@ -163,5 +201,37 @@ export default {
   /* ff44aa */
 }
 .cell:hover {
+  background-color: rgb(197.7, 225.9, 255);
+}
+.grid_action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin: 8px 9px;
+  p {
+    color: #909399;
+  }
+  span {
+    margin-left: 8px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: inline-block;
+    background-color: #f2f6fc;
+  }
+  .grid_confirm {
+    transition: background-color 0.8s; /* 过渡动画 */
+  }
+  .highlight {
+    background-color: #2196f3; /* 蓝色 */
+    color: #fff;
+    cursor: pointer;
+  }
+  .disabled {
+    background-color: #fafafa; /* 灰色 */
+    cursor: not-allowed;
+    color: #c0c4cc;
+  }
 }
 </style>
