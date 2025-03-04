@@ -8,20 +8,27 @@
         删除
       </div>
     </div>
-    <div class="right_content">
+    <div class="right_content" v-if="currentEle">
+      <div v-if="currentEle.type == 'table'">
+        <textarea
+          type="text"
+          v-model="currentEle.data[tdIndex].text"
+          @input="updateRander"
+          placeholder="输入文本"
+        ></textarea>
+        <TableGrid
+          :key="currentEle.key"
+          :currentEl="currentEle"
+          @updateElTableData="updateElTableData"
+        ></TableGrid>
+      </div>
       <textarea
+        v-else
         type="text"
-        v-if="currentEle"
         v-model="currentEle.text"
         @input="updateRander"
         placeholder="输入文本"
       ></textarea>
-      <TableGrid
-        v-if="currentEle && currentEle.type == 'table'"
-        :key="currentEle.key"
-        :currentEl="currentEle"
-        @updateElTableData="updateElTableData"
-      ></TableGrid>
     </div>
   </div>
 </template>
@@ -37,6 +44,10 @@ export default {
     currentEl: {
       type: Object,
       default: () => {},
+    },
+    tdIndex: {
+      type: [String, Number],
+      default: -1,
     },
   },
   watch: {

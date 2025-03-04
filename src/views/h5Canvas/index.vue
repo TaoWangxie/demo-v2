@@ -11,6 +11,7 @@
         <div class="page">
           <div
             id="middle"
+            class="middle"
             @dragover.prevent
             @dragleave.prevent="dragleave"
             @dragenter.prevent="dragenter"
@@ -24,6 +25,7 @@
       <!-- 右侧 -->
       <Right
         :currentEl="currentEl"
+        :tdIndex="tdIndex"
         @deleteCurEl="deleteCurEl"
         @updateRander="rander"
       ></Right>
@@ -32,6 +34,7 @@
 </template>
 
 <script>
+import _ from "lodash";
 import { monitorSelfClick } from "@/utils/index";
 import Header from "@/views/h5Canvas/components/header/index.vue";
 import Left from "@/views/h5Canvas/components/left/index.vue";
@@ -54,6 +57,8 @@ export default {
       draggedEl: null, //拖拽元素
       //上一个高亮的table
       highlightedTable: null,
+      tdKey: null,
+      tdIndex: -1,
     };
   },
   mounted() {
@@ -71,6 +76,8 @@ export default {
       const fragment = document.createDocumentFragment();
       this.middleElementsData.forEach((item) => {
         const element = this.createElement(item);
+
+        // 🟡 需要去掉 画布样式！！！
         if (item.key === this.highlightedKey) {
           element.classList.add("highlight");
         }
@@ -79,17 +86,21 @@ export default {
       this.middle.appendChild(fragment);
     },
     createElement(item) {
-      const { type, text, fontType, key, data } = item;
+      const { type, text, classList, key, data } = item;
       if (type == "table") {
+        // 创建表格
         let element = this.createTableFromSelection(data, key);
         element.setAttribute("data-key", key);
+        classList.forEach((item) => {
+          element.classList.add(item);
+        });
         return element;
       } else {
+        // 根据type创建标签
         const element = document.createElement(type);
-        if (fontType === "B") {
-          element.style.fontWeight = "bold";
-        }
-        element.style.wordBreak = "break-all";
+        classList.forEach((item) => {
+          element.classList.add(item);
+        });
         element.textContent = text;
         // 可以将 key 作为自定义属性添加到元素上，方便后续操作
         element.setAttribute("data-key", key);
@@ -144,8 +155,12 @@ export default {
           // 填充单元格内容
           const cellKey = `${r}_${c}`;
           if (cellDataMap[cellKey]) {
+            // 🟡 需要去掉 画布样式！！！
+            if (this.tdKey && this.tdKey == cellDataMap[cellKey].dataKey) {
+              td.style.background = "#fff";
+            }
             td.setAttribute("data-key", parentKey);
-            td.setAttribute("data-ckey", cellDataMap[cellKey].dataKey); // 设置data-key
+            td.setAttribute("data-tdKey", cellDataMap[cellKey].dataKey); // 设置data-key
             td.textContent = cellDataMap[cellKey].text;
           }
           tr.appendChild(td);
@@ -255,7 +270,7 @@ export default {
         key: uniqueKey,
         ...El,
       };
-      this.middleElementsData.splice(index, 0, newItem);
+      this.middleElementsData.splice(index, 0, _.cloneDeep(newItem));
       this.rander();
     },
     //删除标签
@@ -267,8 +282,8 @@ export default {
     selectEl(event) {
       const target = event.target;
       const key = target.getAttribute("data-key");
-      const ckey = target.getAttribute("data-ckey");
-      console.log(key, ckey);
+      const tdKey = target.getAttribute("data-tdKey");
+      this.tdKey = tdKey;
       if (key) {
         this.currentEl = this.middleElementsData.find(
           (item) => item.key === key
@@ -280,12 +295,19 @@ export default {
         console.log(this.middleElementsData);
         this.rander();
       }
+      if (tdKey) {
+        this.tdIndex = this.currentEl.data.findIndex(
+          (item) => item.key === tdKey
+        );
+      }
     },
     //取消选中标签
     reset() {
       this.currentEl = null;
       this.currentIndex = -1;
       this.highlightedKey = null;
+      this.tdKey = null;
+      this.tdIndex = -1;
       this.rander();
     },
   },
@@ -296,7 +318,6 @@ export default {
 .highlight-top {
   border-top: 20px solid rgb(247.5, 227.1, 196.5) !important;
 }
-
 .highlight-bottom {
   border-bottom: 20px solid rgb(247.5, 227.1, 196.5) !important;
 }
@@ -332,7 +353,12 @@ export default {
   overflow: scroll;
   box-shadow: 0 0px 15px #ccc;
 }
-#middle {
+.highlight {
+  background: rgb(235.9, 245.3, 255);
+}
+</style>
+<style>
+.middle {
   width: 90%;
   height: 100%;
   margin: 0 auto;
@@ -340,8 +366,30 @@ export default {
   padding-bottom: 40px;
   overflow: scroll;
   box-sizing: border-box;
+  line-height: 22px;
+  font-size: 14px;
 }
-.highlight {
-  background: rgb(235.9, 245.3, 255);
+.middle p {
+  word-break: break-all;
+  list-style: none;
+  color: #333;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  text-align: left;
+  padding-bottom: 10px;
+}
+.middle td {
+  word-break: break-all;
+  padding: 4px;
+}
+.strong {
+  font-weight: bold;
+}
+.table-box {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 </style>

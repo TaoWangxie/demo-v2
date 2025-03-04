@@ -23,19 +23,20 @@ export default {
   data() {
     return {
       list: [
-        { type: "div", title: "标题", text: "标题", fontType: "B" },
-        { type: "p", title: "正文", text: "正文" },
+        { type: "p", title: "标题", text: "标题", classList: ["strong"] },
+        { type: "p", title: "正文", text: "正文", classList: [] },
         {
           type: "table",
           title: "表格",
           text: "",
+          classList: ["table-box"],
           data: [
-            { row: 0, col: 0, text: "A1", key: "0-0" },
-            { row: 0, col: 1, text: "B1", key: "0-1" },
-            { row: 1, col: 0, text: "A2", key: "1-0" },
-            { row: 1, col: 1, text: "B2", key: "1-1" },
-            { row: 2, col: 0, text: "A3", key: "2-0" },
-            { row: 2, col: 1, text: "B3", key: "2-1" },
+            { row: 0, col: 0, text: "", key: "0-0" },
+            { row: 0, col: 1, text: "", key: "0-1" },
+            { row: 1, col: 0, text: "", key: "1-0" },
+            { row: 1, col: 1, text: "", key: "1-1" },
+            { row: 2, col: 0, text: "", key: "2-0" },
+            { row: 2, col: 1, text: "", key: "2-1" },
           ],
         },
       ],
@@ -79,8 +80,9 @@ export default {
   height: 30px;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   -webkit-user-drag: element;
   user-select: none;
   background-color: #fff;
