@@ -23,20 +23,19 @@ export default {
   data() {
     return {
       list: [
-        { type: "p", title: "标题", text: "标题", classList: ["strong"] },
-        { type: "p", title: "正文", text: "正文", classList: [] },
+        { type: "p", title: "标题", data: "标题", classList: ["strong"] },
+        { type: "p", title: "正文", data: "正文", classList: [] },
         {
           type: "table",
           title: "表格",
-          text: "",
           classList: ["table-box"],
           data: [
-            { row: 0, col: 0, text: "", key: "0-0" },
-            { row: 0, col: 1, text: "", key: "0-1" },
-            { row: 1, col: 0, text: "", key: "1-0" },
-            { row: 1, col: 1, text: "", key: "1-1" },
-            { row: 2, col: 0, text: "", key: "2-0" },
-            { row: 2, col: 1, text: "", key: "2-1" },
+            { row: 0, col: 0, data: "", key: "0-0" },
+            { row: 0, col: 1, data: "", key: "0-1" },
+            { row: 1, col: 0, data: "", key: "1-0" },
+            { row: 1, col: 1, data: "", key: "1-1" },
+            { row: 2, col: 0, data: "", key: "2-0" },
+            { row: 2, col: 1, data: "", key: "2-1" },
           ],
         },
       ],

@@ -12,23 +12,35 @@
       <div v-if="currentEle.type == 'table'">
         <textarea
           type="text"
-          v-model="currentEle.data[tdIndex].text"
+          v-model="currentEle.data[tdIndex].data"
           @input="updateRander"
           placeholder="输入文本"
         ></textarea>
         <TableGrid
           :key="currentEle.key"
           :currentEl="currentEle"
-          @updateElTableData="updateElTableData"
+          @updateElTableData="(data) => updateElTableData(data, 'data')"
         ></TableGrid>
       </div>
-      <textarea
-        v-else
-        type="text"
-        v-model="currentEle.text"
-        @input="updateRander"
-        placeholder="输入文本"
-      ></textarea>
+      <template v-else>
+        <div class="class_box">
+          <div
+            v-for="item in classList"
+            :key="item.name"
+            class="class_item"
+            :class="{ active: currentEle.classList.includes(item.name) }"
+            @click="toggleClass(item.name)"
+          >
+            <img :src="item.icon" alt="" />
+          </div>
+        </div>
+        <textarea
+          type="text"
+          v-model="currentEle.data"
+          @input="updateRander"
+          placeholder="输入文本"
+        ></textarea>
+      </template>
     </div>
   </div>
 </template>
@@ -62,6 +74,20 @@ export default {
   data() {
     return {
       currentEle: null,
+      classList: [
+        {
+          name: "strong", //加粗
+          icon: require("@/assets/strong.png"),
+        },
+        {
+          name: "underline", //下划线
+          icon: require("@/assets/underline.png"),
+        },
+        {
+          name: "retract", //首行缩进
+          icon: require("@/assets/retract.png"),
+        },
+      ],
     };
   },
   methods: {
@@ -71,9 +97,20 @@ export default {
     updateRander() {
       this.$emit("updateRander");
     },
-    updateElTableData(data) {
-      this.$set(this.currentEl, "data", data);
-      this.$emit("updateRander");
+    updateElTableData(data, property) {
+      this.$set(this.currentEl, property, data);
+      this.$emit("resetTd");
+      this.updateRander();
+    },
+    // 切换样式
+    toggleClass(type) {
+      const index = this.currentEle.classList.indexOf(type);
+      if (index === -1) {
+        this.currentEle.classList.push(type);
+      } else {
+        this.currentEle.classList.splice(index, 1);
+      }
+      this.updateElTableData(this.currentEle.classList, "classList");
     },
   },
 };
@@ -94,7 +131,7 @@ export default {
   border-bottom: 1px solid #e4e7ed;
 }
 .right_content {
-  padding: 15px;
+  padding: 10px;
   box-sizing: border-box;
 }
 .action_btn {
@@ -109,6 +146,9 @@ export default {
   background-color: #f2f6fc; /* 蓝色 */
   color: #f56c6c;
   cursor: pointer;
+  &:hover {
+    background-color: #ebeef5;
+  }
 }
 .disabled {
   background-color: #fafafa; /* 灰色 */
@@ -132,5 +172,30 @@ textarea {
 }
 textarea:focus {
   outline: none;
+}
+.class_box {
+  display: flex;
+  margin-bottom: 10px;
+  .class_item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e4e7ed;
+    border-right: none;
+    cursor: pointer;
+    &:last-child {
+      border-right: 1px solid #e4e7ed;
+    }
+    img {
+      display: inline-block;
+      width: 50%;
+      height: 50%;
+    }
+  }
+  .active {
+    background-color: #ffd700;
+  }
 }
 </style>

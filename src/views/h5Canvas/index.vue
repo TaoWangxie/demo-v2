@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- 头部 -->
-    <Header></Header>
+    <Header :middleElementsData="middleElementsData"></Header>
     <!-- 内容区域 -->
     <div class="content">
       <!-- 左侧 -->
@@ -28,6 +28,7 @@
         :tdIndex="tdIndex"
         @deleteCurEl="deleteCurEl"
         @updateRander="rander"
+        @resetTd="resetTd"
       ></Right>
     </div>
   </div>
@@ -85,8 +86,9 @@ export default {
       });
       this.middle.appendChild(fragment);
     },
+    //创建元素
     createElement(item) {
-      const { type, text, classList, key, data } = item;
+      const { type, data, classList, key } = item;
       if (type == "table") {
         // 创建表格
         let element = this.createTableFromSelection(data, key);
@@ -101,19 +103,20 @@ export default {
         classList.forEach((item) => {
           element.classList.add(item);
         });
-        element.textContent = text;
+        element.textContent = data;
         // 可以将 key 作为自定义属性添加到元素上，方便后续操作
         element.setAttribute("data-key", key);
         return element;
       }
     },
+    //创建table
     createTableFromSelection(selectedCells, parentKey) {
       // 创建单元格数据映射表
       const cellDataMap = {};
       selectedCells.forEach((cell) => {
         const mapKey = `${cell.row}_${cell.col}`;
         cellDataMap[mapKey] = {
-          text: cell.text || "",
+          data: cell.data || "",
           dataKey: cell.key || "", // 新增data-key映射
         };
       });
@@ -161,7 +164,7 @@ export default {
             }
             td.setAttribute("data-key", parentKey);
             td.setAttribute("data-tdKey", cellDataMap[cellKey].dataKey); // 设置data-key
-            td.textContent = cellDataMap[cellKey].text;
+            td.textContent = cellDataMap[cellKey].data;
           }
           tr.appendChild(td);
         }
@@ -292,7 +295,6 @@ export default {
           (item) => item.key === key
         );
         this.highlightedKey = key;
-        console.log(this.middleElementsData);
         this.rander();
       }
       if (tdKey) {
@@ -300,6 +302,11 @@ export default {
           (item) => item.key === tdKey
         );
       }
+      console.log(this.middleElementsData);
+    },
+    resetTd() {
+      this.tdIndex = 0;
+      this.tdKey = this.currentEl.data[0].key;
     },
     //取消选中标签
     reset() {
@@ -383,13 +390,20 @@ export default {
   word-break: break-all;
   padding: 4px;
 }
-.strong {
-  font-weight: bold;
-}
 .table-box {
   width: 100%;
   height: auto;
   overflow: hidden;
   margin-bottom: 10px;
+}
+/* ==== */
+.strong {
+  font-weight: bold;
+}
+.underline {
+  text-decoration: underline;
+}
+.retract {
+  text-indent: 20px;
 }
 </style>

@@ -122,7 +122,6 @@ export default {
       this.hasMoved = false;
       this.selectedCells = this.getSelectedCells();
     },
-    // 其他方法保持不变
     getCellFromEvent(event) {
       const cell = event.target.closest(".cell");
       if (!cell) return null;
@@ -148,7 +147,7 @@ export default {
               row: rowIndex,
               col: colIndex,
               key: `${rowIndex}-${colIndex}`,
-              text: "",
+              data: "",
             });
           }
         });
@@ -157,14 +156,12 @@ export default {
     },
     reset() {
       if (this.isConfirm) {
-        console.log("reset");
         this.isConfirm = false;
         this.init(this.currentEl.data);
       }
     },
     confirm() {
       if (this.isConfirm) {
-        console.log("confirm", this.selectedCells);
         this.$emit("updateElTableData", this.selectedCells);
         this.isConfirm = false;
       }
