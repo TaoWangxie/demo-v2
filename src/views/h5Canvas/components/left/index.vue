@@ -23,8 +23,13 @@ export default {
   data() {
     return {
       list: [
-        { type: "p", title: "标题", data: "标题", classList: ["strong"] },
-        { type: "p", title: "正文", data: "正文", classList: [] },
+        {
+          type: "p",
+          title: "标题",
+          data: "标题",
+          classList: ["strong", "justifyleft"],
+        },
+        { type: "p", title: "正文", data: "正文", classList: ["justifyleft"] },
         {
           type: "table",
           title: "表格",

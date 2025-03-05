@@ -383,7 +383,7 @@ export default {
   width: 100%;
   height: auto;
   overflow: hidden;
-  text-align: left;
+  /* text-align: left; */
   padding-bottom: 10px;
 }
 .middle td {
@@ -405,5 +405,14 @@ export default {
 }
 .retract {
   text-indent: 20px;
+}
+.justifyleft {
+  text-align: left;
+}
+.justifycenter {
+  text-align: center;
+}
+.justifyright {
+  text-align: right;
 }
 </style>

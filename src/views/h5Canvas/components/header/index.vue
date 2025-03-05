@@ -2,6 +2,7 @@
   <div class="header">
     <div></div>
     <div>
+      <div :class="['action_btn', 'highlight']" @click="importData">导入</div>
       <div
         :class="[
           'action_btn',
@@ -30,6 +31,7 @@ export default {
       if (this.middleElementsData.length)
         this.download(this.middleElementsData);
     },
+    importData() {},
     download(data) {
       // 将数据转换为 JavaScript 文件内容
       const fileContent = `export const page = ${JSON.stringify(
@@ -72,6 +74,7 @@ export default {
   font-size: 12px;
   border-radius: 4px;
   display: inline-block;
+  margin-left: 10px;
 }
 .highlight {
   background-color: #f2f6fc; /* 蓝色 */

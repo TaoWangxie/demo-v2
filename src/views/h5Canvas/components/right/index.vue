@@ -87,6 +87,18 @@ export default {
           name: "retract", //首行缩进
           icon: require("@/assets/retract.png"),
         },
+        {
+          name: "justifyleft", //居左
+          icon: require("@/assets/justifyleft.png"),
+        },
+        {
+          name: "justifycenter", //居中
+          icon: require("@/assets/justifycenter.png"),
+        },
+        {
+          name: "justifyright", //居右
+          icon: require("@/assets/justifyright.png"),
+        },
       ],
     };
   },
@@ -103,12 +115,31 @@ export default {
       this.updateRander();
     },
     // 切换样式
-    toggleClass(type) {
-      const index = this.currentEle.classList.indexOf(type);
-      if (index === -1) {
-        this.currentEle.classList.push(type);
+    toggleClass(name) {
+      let justifyType = ["justifyleft", "justifycenter", "justifyright"];
+      // 处理单选逻辑
+      if (justifyType.includes(name)) {
+        //居左/中/右
+        const alignClasses = justifyType;
+        // 先移除所有可能存在的对齐类
+        alignClasses.forEach((cls) => {
+          const index = this.currentEle.classList.indexOf(cls);
+          if (index > -1) {
+            this.currentEle.classList.splice(index, 1);
+          }
+        });
+        // 如果当前name不存在则添加（实现纯单选不取消）
+        if (!this.currentEle.classList.includes(name)) {
+          this.currentEle.classList.push(name);
+        }
       } else {
-        this.currentEle.classList.splice(index, 1);
+        //多选
+        const index = this.currentEle.classList.indexOf(name);
+        if (index === -1) {
+          this.currentEle.classList.push(name);
+        } else {
+          this.currentEle.classList.splice(index, 1);
+        }
       }
       this.updateElTableData(this.currentEle.classList, "classList");
     },
