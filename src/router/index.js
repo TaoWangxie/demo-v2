@@ -52,6 +52,14 @@ export const routes = [
       title: "画布",
     },
   },
+  {
+    path: "/test",
+    name: "test",
+    component: () => import("@/views/test"),
+    mate: {
+      title: "test",
+    },
+  },
 ];
 
 const router = new VueRouter({
