@@ -1,5 +1,5 @@
 <template>
-  <div class="Etable">
+  <div class="calendarTable">
     <el-table
       v-bind="bindTable"
       :data="tableData"
@@ -31,21 +31,29 @@
           v-bind="colItem.attr"
           show-overflow-tooltip
         >
+          <!-- 头部插槽 -->
           <template slot="header" slot-scope="scope">
             <slot
               v-if="colItem.headerSlot || allHeaderSlot"
               name="header"
-              :scope="{ scope, column: colItem, columnIndex: index }"
+              :scope="{ $data: scope, $column: colItem, $columnIndex: index }"
             />
             <template v-else>
               {{ colItem.label }}
             </template>
           </template>
+          <!-- 插槽 -->
           <template slot-scope="scope">
             <template v-if="allSlot">
-              <slot name="default" :scope="{ scope, columnIndex: index }" />
+              <template v-if="!allSlotExceptColumnIndexs.includes(index)">
+                <slot
+                  name="default"
+                  :scope="{ $data: scope, $columnIndex: index }"
+                />
+              </template>
+              <template v-else>{{ scope.row[colItem.prop] }}</template>
             </template>
-            <template v-if="colItem.colType === 'slot'">
+            <template v-else-if="colItem.colType === 'slot'">
               <slot :name="colItem.prop" :scope="scope" />
             </template>
             <!-- 普通列 -->
@@ -56,12 +64,21 @@
         </el-table-column>
       </template>
     </el-table>
+    <div ref="paginationBox" :class="['pagination-style']">
+      <!-- 分页 -->
+      <el-pagination
+        v-if="!hideConfig.includes('pagination') && pagination.total"
+        v-bind="setPaginationAttr()"
+        @size-change="pageChange($event, 'pageSize')"
+        @current-change="pageChange($event, 'pageNum')"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "EditTable",
+  name: "calendarTable",
   props: {
     data: {
       type: Array,
@@ -75,6 +92,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    pagination: {
+      type: Object,
+      default: () => {},
+    },
     isType: {
       type: String,
       default: "selection",
@@ -84,10 +105,17 @@ export default {
       default: () => [],
     },
     allSlot: {
+      //全部插槽
       type: Boolean,
       default: false,
     },
+    allSlotExceptColumnIndexs: {
+      //全部插槽除外的列下标
+      type: Array,
+      default: () => [],
+    },
     allHeaderSlot: {
+      //全部头部插槽
       type: Boolean,
       default: false,
     },
@@ -102,11 +130,6 @@ export default {
       },
     },
   },
-  data() {
-    return {
-      tableData: [],
-    };
-  },
   computed: {
     bindTable() {
       return {
@@ -116,38 +139,103 @@ export default {
       };
     },
   },
+  data() {
+    return {
+      tableData: [],
+      selectList: [],
+    };
+  },
   methods: {
+    //分页点击
+    pageChange(val, type) {
+      this.selectList = [];
+      this.pagination[type] = val;
+      this.$emit("update:pagination", this.pagination);
+      this.$emit("handlePageChange", val);
+    },
+    setPaginationAttr() {
+      let defaultAttr = {
+        background: true,
+        "page-sizes": [10, 50, 100, 200, 500],
+        layout: "total, sizes, prev, pager, next",
+        "current-page": 1,
+        "page-size": 0,
+        total: 0,
+      };
+      let attr = Object.assign(defaultAttr, this.pagination);
+      return attr;
+    },
+    // arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+    //   let offset = 1; //默认起始列
+    //   // 检查是否存在有效的日期范围
+    //   if (!row.date || row.date.length < 2) {
+    //     return [1, 1];
+    //   }
+    //   // 将1转换为0索引
+    //   const start = row.date[0] - 1 + offset;
+    //   const end = row.date[1] - 1 + offset;
+    //   // 校验索引有效性
+    //   if (start < 0 || end < 0 || start > end) {
+    //     return [1, 1];
+    //   }
+    //   // 处理需要合并的列
+    //   if (columnIndex === start) {
+    //     // 计算合并列数
+    //     return [1, end - start + 1];
+    //   } else if (columnIndex > start && columnIndex <= end) {
+    //     // 隐藏合并区间内的列
+    //     return [0, 0];
+    //   }
+    //   // 默认不合并
+    //   return [1, 1];
+    // },
     arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-      console.log(row, column, rowIndex, columnIndex);
-      let offset = 1; //默认起始列
-      // 1. 检查是否存在有效的日期范围
-      if (!row.date || row.date.length < 2) {
+      // 参数说明（根据你的列结构调整 offset）
+      const COLUMN_OFFSET = 2; // 固定列数量（如序号列+车辆列）
+      const DATA_START = 1; // 数据列起始编号（用户输入的 task 值从1开始）
+
+      // 1. 空值检查
+      if (!row.task || !Array.isArray(row.task)) {
         return [1, 1];
       }
-      // 2. 将1转换为0索引
-      const start = row.date[0] - 1 + offset;
-      const end = row.date[1] - 1 + offset;
-      // 3. 校验索引有效性
-      if (start < 0 || end < 0 || start > end) {
-        return [1, 1];
+
+      // 2. 遍历所有合并区间
+      const mergeRanges = [];
+      for (const item of row.task) {
+        // 2.1 提取有效 task
+        const task = item?.date;
+        if (!Array.isArray(task) || task.length < 2) continue;
+
+        // 2.2 计算实际列索引
+        const start = task[0] - DATA_START + COLUMN_OFFSET;
+        const end = task[1] - DATA_START + COLUMN_OFFSET;
+
+        // 2.3 过滤无效区间
+        if (start > end || start < COLUMN_OFFSET) continue;
+        mergeRanges.push({ start, end });
       }
-      // 4. 处理需要合并的列
-      if (columnIndex === start) {
-        // 计算合并列数
-        return [1, end - start + 1];
-      } else if (columnIndex > start && columnIndex <= end) {
-        // 隐藏合并区间内的列
-        return [0, 0];
+
+      // 3. 合并逻辑判断
+      for (const range of mergeRanges) {
+        // 3.1 处理起始列
+        if (columnIndex === range.start) {
+          return [1, range.end - range.start + 1];
+        }
+        // 3.2 隐藏区间内的其他列
+        else if (columnIndex > range.start && columnIndex <= range.end) {
+          return [0, 0];
+        }
       }
-      // 5. 默认不合并
+
+      // 4. 默认不合并
       return [1, 1];
     },
   },
 };
 </script>
 
-<style scoped>
-.Etable {
+<style lang="scss" scoped>
+.calendarTable {
   flex: 1;
   position: relative;
   height: 100%;
@@ -156,17 +244,37 @@ export default {
   background: #fff;
   overflow: hidden;
   padding: 0;
+
+  .pagination-style {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 0;
+    padding-left: 14px;
+    height: 36px;
+    .reverse-left {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
 }
 
-.Etable ::v-deep .el-table .cell {
+.calendarTable ::v-deep .el-table .cell {
   padding: 0;
+  width: 100%;
   height: 100%;
   line-height: 46px;
   text-align: center;
 }
-.Etable ::v-deep .el-table .el-table__cell {
+.calendarTable ::v-deep .el-table .el-table__cell {
   padding: 0;
   height: 46px;
+}
+.calendarTable ::v-deep .el-table th.el-table__cell {
+  background: #f8f8f9;
 }
 </style>
   
