@@ -8,6 +8,7 @@
       :allSlot="true"
       :allSlotExceptColumnIndexs="[0]"
       :allHeaderSlot="true"
+      :COLUMN_OFFSET="1"
       :pagination="pagination"
       @handlePageChange="handlePageChange"
     >
@@ -16,21 +17,20 @@
       <!-- 插槽 -->
       <template #default="{ scope }">
         <div
-          v-if="
-            scope.$data.row.task.length &&
-            getFirstDay(scope.$data.row.task, scope.$columnIndex)
-          "
+          v-if="scope.$data.row.tasks.length && getTask(scope)"
           class="taskCell"
         >
-          <!-- <div
+          <div
             class="taskBL"
-            :style="{ width: halfW(scope.$data.row, true) }"
-          ></div> -->
-          <div class="taskContent">{{ scope.$data.row.name }}</div>
-          <!-- <div
+            :style="{ width: halfW(getTask(scope), true) }"
+          ></div>
+          <div class="taskContent">
+            {{ getTask(scope).name }}
+          </div>
+          <div
             class="taskBR"
-            :style="{ width: halfW(scope.$data.row, false) }"
-          ></div> -->
+            :style="{ width: halfW(getTask(scope), false) }"
+          ></div>
         </div>
       </template>
     </Table>
@@ -114,29 +114,25 @@ export default {
       tableData: [
         {
           car: "GVHBJJ",
-          task: [{ date: [1, 2] }, { date: [5, 8] }],
-          timeStart: 8,
-          timeEnd: 8,
-          name: "1111",
+          tasks: [
+            { date: [1, 2], timeStart: 8, timeEnd: 8, name: "11" },
+            { date: [5, 8], timeStart: 14, timeEnd: 8, name: "22" },
+          ],
         },
         {
           car: "IJIKKO",
-          task: [{ date: [3, 5] }],
-          timeStart: 13,
-          timeEnd: 8,
-          name: "2222",
+          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 8, name: "33" }],
         },
         {
           car: "YUUTT",
-          task: [{ date: [6, 9] }, { date: [2, 3] }],
-          timeStart: 8,
-          timeEnd: 18,
-          name: "3333",
+          tasks: [
+            { date: [6, 9], timeStart: 17, timeEnd: 8, name: "44" },
+            { date: [2, 3], timeStart: 8, timeEnd: 8, name: "55" },
+          ],
         },
         {
           car: "eivom",
-          task: [],
-          name: "4444",
+          tasks: [],
         },
       ],
       hideConfig: ["checkbox", "serial"],
@@ -148,12 +144,19 @@ export default {
     };
   },
   methods: {
-    getFirstDay(task, columnIndex) {
-      let fds = task.map((item) => {
-        return item.date[0] + 1;
-      });
-
-      return fds.includes(columnIndex);
+    //是否是任务第一天 用于插槽
+    getTask(scope) {
+      //scope：当前行插槽信息
+      let tasks = scope.$data.row.tasks; //当前行任务列表
+      let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
+      let fds = tasks.map((item) => item.date[0]); //当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
+      if (fds.includes(columnIndex)) {
+        //当任务插槽的起始列是当前列时，说明当前任务从这一天开始 返回当前任务对象 task
+        let task = tasks.find((item) => item.date[0] == columnIndex);
+        return task;
+      } else {
+        return false;
+      }
     },
     //任务第一天/最后一天 am/pm
     halfW(row, isFirstDay) {

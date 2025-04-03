@@ -119,6 +119,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    COLUMN_OFFSET: {
+      //全部插槽
+      type: Number,
+      default: 0,
+    },
   },
   mounted() {},
   watch: {
@@ -165,69 +170,38 @@ export default {
       let attr = Object.assign(defaultAttr, this.pagination);
       return attr;
     },
-    // arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-    //   let offset = 1; //默认起始列
-    //   // 检查是否存在有效的日期范围
-    //   if (!row.date || row.date.length < 2) {
-    //     return [1, 1];
-    //   }
-    //   // 将1转换为0索引
-    //   const start = row.date[0] - 1 + offset;
-    //   const end = row.date[1] - 1 + offset;
-    //   // 校验索引有效性
-    //   if (start < 0 || end < 0 || start > end) {
-    //     return [1, 1];
-    //   }
-    //   // 处理需要合并的列
-    //   if (columnIndex === start) {
-    //     // 计算合并列数
-    //     return [1, end - start + 1];
-    //   } else if (columnIndex > start && columnIndex <= end) {
-    //     // 隐藏合并区间内的列
-    //     return [0, 0];
-    //   }
-    //   // 默认不合并
-    //   return [1, 1];
-    // },
     arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-      // 参数说明（根据你的列结构调整 offset）
-      const COLUMN_OFFSET = 2; // 固定列数量（如序号列+车辆列）
+      const COLUMN_OFFSET = this.COLUMN_OFFSET; // 固定列数量（如序号列+车辆列）
       const DATA_START = 1; // 数据列起始编号（用户输入的 task 值从1开始）
-
-      // 1. 空值检查
-      if (!row.task || !Array.isArray(row.task)) {
+      // 空值检查
+      if (!row.tasks || !Array.isArray(row.tasks)) {
         return [1, 1];
       }
-
-      // 2. 遍历所有合并区间
+      // 遍历所有合并区间
       const mergeRanges = [];
-      for (const item of row.task) {
-        // 2.1 提取有效 task
-        const task = item?.date;
-        if (!Array.isArray(task) || task.length < 2) continue;
-
-        // 2.2 计算实际列索引
-        const start = task[0] - DATA_START + COLUMN_OFFSET;
-        const end = task[1] - DATA_START + COLUMN_OFFSET;
-
-        // 2.3 过滤无效区间
+      for (const item of row.tasks) {
+        // 提取有效 date
+        const date = item?.date;
+        if (!Array.isArray(date) || date.length < 2) continue;
+        // 计算实际列索引
+        const start = date[0] - DATA_START + COLUMN_OFFSET;
+        const end = date[1] - DATA_START + COLUMN_OFFSET;
+        // 过滤无效区间
         if (start > end || start < COLUMN_OFFSET) continue;
         mergeRanges.push({ start, end });
       }
-
-      // 3. 合并逻辑判断
+      // 合并逻辑判断
       for (const range of mergeRanges) {
-        // 3.1 处理起始列
+        // 处理起始列
         if (columnIndex === range.start) {
           return [1, range.end - range.start + 1];
         }
-        // 3.2 隐藏区间内的其他列
+        // 隐藏区间内的其他列
         else if (columnIndex > range.start && columnIndex <= range.end) {
           return [0, 0];
         }
       }
-
-      // 4. 默认不合并
+      // 默认不合并
       return [1, 1];
     },
   },
