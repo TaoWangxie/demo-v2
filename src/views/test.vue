@@ -149,7 +149,7 @@ export default {
       //scope：当前行插槽信息
       let tasks = scope.$data.row.tasks; //当前行任务列表
       let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
-      let fds = tasks.map((item) => item.date[0]); //当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
+      let fds = tasks.map((item) => item.date[0]); //fristDayStart 当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
       if (fds.includes(columnIndex)) {
         //当任务插槽的起始列是当前列时，说明当前任务从这一天开始 返回当前任务对象 task
         let task = tasks.find((item) => item.date[0] == columnIndex);
