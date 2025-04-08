@@ -170,39 +170,91 @@ export default {
       let attr = Object.assign(defaultAttr, this.pagination);
       return attr;
     },
+    // arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+    //   const COLUMN_OFFSET = this.COLUMN_OFFSET; // 固定列数量（如序号列+车辆列）
+    //   const DATA_START = 1; // 数据列起始编号（用户输入的 task 值从1开始）
+    //   // 空值检查
+    //   if (!row.tasks || !Array.isArray(row.tasks)) {
+    //     return [1, 1];
+    //   }
+    //   // 遍历所有合并区间
+    //   const mergeRanges = [];
+    //   for (const item of row.tasks) {
+    //     // 提取有效 date
+    //     const date = item?.date;
+    //     if (!Array.isArray(date) || date.length < 2) continue;
+    //     // 计算实际列索引
+    //     const start = date[0] - DATA_START + COLUMN_OFFSET;
+    //     const end = date[1] - DATA_START + COLUMN_OFFSET;
+    //     // 过滤无效区间
+    //     if (start > end || start < COLUMN_OFFSET) continue;
+    //     mergeRanges.push({ start, end });
+    //   }
+    //   // 合并逻辑判断
+    //   for (const range of mergeRanges) {
+    //     // 处理起始列
+    //     if (columnIndex === range.start) {
+    //       return [1, range.end - range.start + 1];
+    //     }
+    //     // 隐藏区间内的其他列
+    //     else if (columnIndex > range.start && columnIndex <= range.end) {
+    //       return [0, 0];
+    //     }
+    //   }
+    //   // 默认不合并
+    //   return [1, 1];
+    // },
     arraySpanMethod({ row, column, rowIndex, columnIndex }) {
       const COLUMN_OFFSET = this.COLUMN_OFFSET; // 固定列数量（如序号列+车辆列）
-      const DATA_START = 1; // 数据列起始编号（用户输入的 task 值从1开始）
-      // 空值检查
-      if (!row.tasks || !Array.isArray(row.tasks)) {
-        return [1, 1];
-      }
-      // 遍历所有合并区间
-      const mergeRanges = [];
-      for (const item of row.tasks) {
-        // 提取有效 date
-        const date = item?.date;
-        if (!Array.isArray(date) || date.length < 2) continue;
-        // 计算实际列索引
-        const start = date[0] - DATA_START + COLUMN_OFFSET;
-        const end = date[1] - DATA_START + COLUMN_OFFSET;
-        // 过滤无效区间
-        if (start > end || start < COLUMN_OFFSET) continue;
-        mergeRanges.push({ start, end });
-      }
-      // 合并逻辑判断
-      for (const range of mergeRanges) {
-        // 处理起始列
+      const DATA_START = 1; // 数据列起始编号
+      let mergedRanges = this.getMergedRanges(
+        row.tasks,
+        DATA_START,
+        COLUMN_OFFSET
+      );
+      // 3. 合并逻辑判断
+      for (const range of mergedRanges) {
         if (columnIndex === range.start) {
           return [1, range.end - range.start + 1];
-        }
-        // 隐藏区间内的其他列
-        else if (columnIndex > range.start && columnIndex <= range.end) {
+        } else if (columnIndex > range.start && columnIndex <= range.end) {
           return [0, 0];
         }
       }
-      // 默认不合并
+
       return [1, 1];
+    },
+    getMergedRanges(tasks, DATA_START, COLUMN_OFFSET) {
+      if (!tasks || !Array.isArray(tasks)) {
+        return [1, 1];
+      }
+      // 1. 生成原始区间并排序
+      const rawRanges = tasks
+        .map((item) => {
+          const date = item?.date;
+          if (!Array.isArray(date) || date.length < 2) return null;
+
+          const start = date[0] - DATA_START + COLUMN_OFFSET;
+          const end = date[1] - DATA_START + COLUMN_OFFSET;
+
+          return start <= end && start >= COLUMN_OFFSET ? { start, end } : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.start - b.start);
+
+      // 2. 合并连续区间
+      const mergedRanges = [];
+      for (const range of rawRanges) {
+        const last = mergedRanges[mergedRanges.length - 1];
+
+        if (last && range.start <= last.end) {
+          //last.end + 1
+          // 合并重叠或连续的区间
+          last.end = Math.max(last.end, range.end);
+        } else {
+          mergedRanges.push({ ...range });
+        }
+      }
+      return mergedRanges;
     },
   },
 };

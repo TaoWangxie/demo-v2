@@ -1,6 +1,7 @@
 <template>
   <div class="MyHome">
     <Table
+      ref="tableRef"
       :border="true"
       :columns="columns"
       :data.sync="tableData"
@@ -17,20 +18,20 @@
       <!-- 插槽 -->
       <template #default="{ scope }">
         <div
-          v-if="scope.$data.row.tasks.length && getTask(scope)"
           class="taskCell"
+          v-if="scope.$data.row.tasks.length && getTask(scope)"
         >
           <div
-            class="taskBL"
-            :style="{ width: halfW(getTask(scope), true) }"
-          ></div>
-          <div class="taskContent">
-            {{ getTask(scope).name }}
+            v-for="(task, index) in getTask(scope)"
+            class="taskBox"
+            :key="index"
+          >
+            <div class="taskBL" :style="{ width: halfW(task, true) }"></div>
+            <div class="taskContent">
+              {{ task.name }}
+            </div>
+            <div class="taskBR" :style="{ width: halfW(task, false) }"></div>
           </div>
-          <div
-            class="taskBR"
-            :style="{ width: halfW(getTask(scope), false) }"
-          ></div>
         </div>
       </template>
     </Table>
@@ -116,7 +117,8 @@ export default {
           car: "GVHBJJ",
           tasks: [
             { date: [1, 2], timeStart: 8, timeEnd: 8, name: "11" },
-            { date: [5, 8], timeStart: 14, timeEnd: 8, name: "22" },
+            { date: [2, 5], timeStart: 14, timeEnd: 8, name: "22" },
+            { date: [6, 7], timeStart: 14, timeEnd: 8, name: "2222" },
           ],
         },
         {
@@ -148,15 +150,33 @@ export default {
     getTask(scope) {
       //scope：当前行插槽信息
       let tasks = scope.$data.row.tasks; //当前行任务列表
+      let mergedRanges = this.$refs.tableRef.getMergedRanges(tasks, 1, 1); //当前行合并单元格区间列表
       let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
-      let fds = tasks.map((item) => item.date[0]); //fristDayStart 当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
-      if (fds.includes(columnIndex)) {
-        //当任务插槽的起始列是当前列时，说明当前任务从这一天开始 返回当前任务对象 task
-        let task = tasks.find((item) => item.date[0] == columnIndex);
+      let fds = mergedRanges.map((item) => item.start); //fristDayStart 当前行所有合并单元格的起始日期 天，也是每个任务插槽的起始列
+      let ind = fds.indexOf(columnIndex); //当前列是否是 等于 当前行某个合并单元格起始值
+      if (ind > -1) {
+        //存在
+        let start = mergedRanges[ind].start; //单元格区间起始值
+        let end = mergedRanges[ind].end; //单元格区间终止值
+        let task = []; //当前单元格范围内的所有任务列表
+        tasks.forEach((item) => {
+          if (item.date[0] >= start && item.date[0] <= end) {
+            task.push(item);
+          }
+        });
         return task;
       } else {
         return false;
       }
+      // let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
+      // let fds = tasks.map((item) => item.date[0]); //fristDayStart 当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
+      // if (fds.includes(columnIndex)) {
+      //   //当任务插槽的起始列是当前列时，说明当前任务从这一天开始 返回当前任务对象 task
+      //   let task = tasks.find((item) => item.date[0] == columnIndex);
+      //   return task;
+      // } else {
+      //   return false;
+      // }
     },
     //任务第一天/最后一天 am/pm
     halfW(row, isFirstDay) {
@@ -183,8 +203,10 @@ export default {
 .taskCell {
   display: flex;
   width: 100%;
-  height: 100%;
-
+  .taskBox {
+    display: flex;
+    width: 100%;
+  }
   .taskBL {
     height: 100%;
     border-right: 2px solid #409eff;
