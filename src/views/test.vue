@@ -27,12 +27,19 @@
             :style="{ width: task.width }"
             :key="index"
           >
-            <div
-              :style="{ marginLeft: task.paddingL, marginRight: task.paddingR }"
-              class="taskContent"
-            >
-              {{ task.name }}
-            </div>
+            <el-popover placement="right" width="200" trigger="click">
+              <div
+                slot="reference"
+                :style="{
+                  marginLeft: task.paddingL,
+                  marginRight: task.paddingR,
+                }"
+                class="taskContent"
+              >
+                {{ task.name }}
+              </div>
+              <div>名字：{{ task.name }}</div>
+            </el-popover>
           </div>
         </div>
       </template>
@@ -55,6 +62,7 @@ export default {
           prop: "car",
           attr: {
             fixed: "left",
+            width: "140px",
           },
         },
         {
@@ -228,9 +236,15 @@ export default {
     flex: 1;
     text-align: left;
     box-sizing: border-box;
+    padding: 0 5px;
     border-left: 2px solid #409eff;
     background: rgba(64, 158, 255, 0.4);
   }
+}
+</style>
+<style>
+.task span {
+  flex: 1;
 }
 </style>
   
