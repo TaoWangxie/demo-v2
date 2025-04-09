@@ -23,13 +23,16 @@
         >
           <div
             v-for="(task, index) in getTask(scope)"
-            class="taskBox"
+            class="task"
             :style="{ width: task.width }"
             :key="index"
           >
-            <div :style="{ width: task.paddingL }"></div>
-            <div class="taskContent">{{ task.name }}</div>
-            <div :style="{ width: task.paddingR }"></div>
+            <div
+              :style="{ marginLeft: task.paddingL, marginRight: task.paddingR }"
+              class="taskContent"
+            >
+              {{ task.name }}
+            </div>
           </div>
         </div>
       </template>
@@ -115,20 +118,20 @@ export default {
         {
           car: "GVHBJJ",
           tasks: [
-            { date: [1, 1], timeStart: 13, timeEnd: 8, name: "1" },
-            { date: [1, 1], timeStart: 14, timeEnd: 5, name: "2" },
-            { date: [7, 8], timeStart: 14, timeEnd: 8, name: "3" },
+            { date: [1, 2], timeStart: 13, timeEnd: 14, name: "1" },
+            { date: [2, 5], timeStart: 14, timeEnd: 5, name: "2" },
+            { date: [5, 10], timeStart: 14, timeEnd: 8, name: "3" },
           ],
         },
         {
           car: "IJIKKO",
-          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 13, name: "33" }],
+          tasks: [{ date: [3, 5], timeStart: 4, timeEnd: 3, name: "33" }],
         },
         {
           car: "YUUTT",
           tasks: [
             { date: [2, 6], timeStart: 8, timeEnd: 8, name: "55" },
-            { date: [6, 9], timeStart: 17, timeEnd: 8, name: "44" },
+            { date: [7, 9], timeStart: 6, timeEnd: 13, name: "44" },
           ],
         },
         {
@@ -157,66 +160,51 @@ export default {
         //存在
         let start = mergedRanges[ind].start; //单元格区间起始值
         let end = mergedRanges[ind].end; //单元格区间终止值
+        // 合并单元格的区间内cell个数
         let interval = end - start + 1;
-
-        let task = []; //当前单元格范围内的所有任务列表
-        tasks.forEach((item) => {
-          if (item.date[0] >= start && item.date[0] <= end) {
-            item["interval"] = interval;
-            task.push(item);
+        let mergedTasks = []; //当前单元格范围内的所有任务列表
+        tasks.forEach((task) => {
+          if (task.date[0] >= start && task.date[0] <= end) {
+            task["interval"] = interval;
+            mergedTasks.push(task);
           }
         });
-        if (task.length > 1) {
-          task.forEach((item, index) => {
-            let width = this.taskWidth(item, index, task.length);
-            item["width"] = width;
-            let offset = index == 0 || index == task.length - 1 ? 0.5 : 0;
-            let paddingL = this.halfW(item, true, offset);
-            let paddingR = this.halfW(item, false, offset);
-            item["paddingL"] = index == 0 ? paddingL : 0;
-            item["paddingR"] = index == task.length - 1 ? paddingR : 0;
+        // 合并单元格的区间内task任务个数
+        let mergedTasksLen = mergedTasks.length;
+        if (mergedTasksLen > 1) {
+          //合并单元格内多任务
+          mergedTasks.forEach((task, index) => {
+            let offset = index == 0 || index == mergedTasksLen - 1 ? 0.5 : 0;
+            let { width, paddingL, paddingR } = this.getTaskStyle(task, offset);
+            task["width"] = width;
+            task["paddingL"] = index == 0 ? paddingL : 0;
+            task["paddingR"] = index == mergedTasksLen - 1 ? paddingR : 0;
           });
         } else {
-          task.forEach((item) => {
-            item["width"] = `100%`;
-            let paddingL = this.halfW(item, true, 1);
-            let paddingR = this.halfW(item, false, 1);
-            item["paddingL"] = paddingL;
-            item["paddingR"] = paddingR;
+          //合并单元格内单任务
+          mergedTasks.forEach((task) => {
+            let { paddingL, paddingR } = this.getTaskStyle(task, 1);
+            task["width"] = `100%`;
+            task["paddingL"] = paddingL;
+            task["paddingR"] = paddingR;
           });
         }
-        return task;
+        return mergedTasks;
       } else {
         return false;
       }
-      // let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
-      // let fds = tasks.map((item) => item.date[0]); //fristDayStart 当前行所有任务的时间范围起始日期 天，也是每个任务插槽的起始列
-      // if (fds.includes(columnIndex)) {
-      //   //当任务插槽的起始列是当前列时，说明当前任务从这一天开始 返回当前任务对象 task
-      //   let task = tasks.find((item) => item.date[0] == columnIndex);
-      //   return task;
-      // } else {
-      //   return false;
-      // }
     },
-    taskWidth(task, index, tasksLen) {
-      if (task.interval < 2) return `${100 / tasksLen}%`;
-      let offset = index == 0 || index == tasksLen - 1 ? 0.5 : 0;
-      const len = Number(task.date[1]) - Number(task.date[0]) + offset;
-      const width = `${(len / task.interval) * 100}%`;
-      return width;
-    },
-    //任务第一天/最后一天 am/pm
-    halfW(task, isFirstDay, offset) {
+    //获取每个任务的宽以及 am/pm 前后padding
+    getTaskStyle(task, offset) {
       const len = Number(task.date[1]) - Number(task.date[0]) + offset;
       const halfW = `${100 / (len * 2)}%`;
-      if (task.interval < 2) return 0;
-      // 根据日期类型判断条件
-      if (isFirstDay) {
-        return task.timeStart > 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
-      } else {
-        return task.timeEnd < 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
-      }
+      const width = `${(len / task.interval) * 100}%`;
+      if (task.interval < 2) return { width: `100%`, paddingL: 0, paddingR: 0 };
+      return {
+        width: width,
+        paddingL: task.timeStart > 12 ? halfW : "0px",
+        paddingR: task.timeEnd < 12 ? halfW : "0px",
+      };
     },
     handlePageChange(val) {
       console.log(val, this.pagination);
@@ -229,13 +217,10 @@ export default {
 .MyHome {
   width: 100%;
 }
-.w100 {
-  width: 100%;
-}
 .taskCell {
   display: flex;
   width: 100%;
-  .taskBox {
+  .task {
     display: flex;
     min-width: 10px;
   }
