@@ -1,6 +1,6 @@
 <template>
   <div class="MyHome">
-    <Table
+    <!-- <Table
       ref="tableRef"
       :border="true"
       :columns="columns"
@@ -13,9 +13,7 @@
       :pagination="pagination"
       @handlePageChange="handlePageChange"
     >
-      <!-- 表头插槽 -->
       <template #header="{ scope }"> {{ scope.$column.label }} </template>
-      <!-- 插槽 -->
       <template #default="{ scope }">
         <div
           v-if="scope.$data.row.tasks.length && getTask(scope)"
@@ -40,6 +38,39 @@
               </div>
               <div>名字：{{ task.name }}</div>
             </el-popover>
+          </div>
+        </div>
+      </template>
+    </Table> -->
+    <Table
+      ref="tableRef"
+      :border="true"
+      :columns="columns"
+      :data.sync="tableData"
+      :hideConfig="hideConfig"
+      :allSlot="true"
+      :allSlotExceptColumnIndexs="[0]"
+      :allHeaderSlot="true"
+      :COLUMN_OFFSET="1"
+      :pagination="pagination"
+      @handlePageChange="handlePageChange"
+    >
+      <!-- 表头插槽 -->
+      <template #header="{ scope }"> {{ scope.$column.label }} </template>
+      <!-- 插槽 -->
+      <template #default="{ scope }">
+        <div v-if="scope.$data.row.tasks.length" class="taskCell">
+          <div
+            v-for="(task, index) in getTaskList(scope)"
+            class="taskSpan"
+            :key="index"
+            :style="{
+              background: task.length ? 'rgba(64, 158, 255, 0.4)' : '',
+            }"
+          >
+            <span v-for="(item, index) in task" :key="index">
+              <span v-if="item.first">{{ item.name }}</span>
+            </span>
           </div>
         </div>
       </template>
@@ -126,20 +157,20 @@ export default {
         {
           car: "GVHBJJ",
           tasks: [
-            { date: [1, 2], timeStart: 13, timeEnd: 14, name: "1" },
-            { date: [2, 5], timeStart: 14, timeEnd: 5, name: "2" },
-            { date: [5, 10], timeStart: 14, timeEnd: 8, name: "3" },
+            { date: [1, 2], timeStart: 13, timeEnd: 4, name: "1" },
+            { date: [2, 5], timeStart: 12, timeEnd: 5, name: "2" },
+            { date: [7, 10], timeStart: 14, timeEnd: 14, name: "3" },
           ],
         },
         {
           car: "IJIKKO",
-          tasks: [{ date: [3, 5], timeStart: 4, timeEnd: 3, name: "33" }],
+          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 13, name: "4" }],
         },
         {
           car: "YUUTT",
           tasks: [
-            { date: [2, 6], timeStart: 8, timeEnd: 8, name: "55" },
-            { date: [7, 9], timeStart: 6, timeEnd: 13, name: "44" },
+            { date: [2, 4], timeStart: 8, timeEnd: 8, name: "5" },
+            { date: [5, 9], timeStart: 17, timeEnd: 8, name: "6" },
           ],
         },
         {
@@ -156,6 +187,59 @@ export default {
     };
   },
   methods: {
+    getTaskList(scope) {
+      let tasks = scope.$data.row.tasks; //当前行任务列表
+      let mergedRanges = this.$refs.tableRef.getMergedRanges(tasks, 1, 1); //当前行合并单元格区间列表
+      let columnIndex = scope.$columnIndex; //当前插槽列下标（因为用的全插槽allSlot 所以每一cell的列下标都有）
+      let fds = mergedRanges.map((item) => item.start); //fristDayStart 当前行所有合并单元格的起始日期 天，也是每个任务插槽的起始列
+      let ind = fds.indexOf(columnIndex); //当前列是否是 等于 当前行某个合并单元格起始值
+      if (ind > -1) {
+        let start = mergedRanges[ind].start; //单元格区间起始值
+        let end = mergedRanges[ind].end; //单元格区间终止值
+        let result = this.generateSchedule(tasks, [start, end]);
+        return result;
+      } else {
+        return [];
+      }
+    },
+    generateSchedule(tasks, targetDateRange) {
+      const [startDay, endDay] = targetDateRange;
+      const interval = (endDay - startDay + 1) * 2;
+      const result = Array.from({ length: interval }, () => []);
+      const firstOccurrence = {}; // 记录每个name首次出现的索引位置
+
+      tasks.forEach((task) => {
+        const [taskStartDay, taskEndDay] = task.date;
+        if (taskStartDay < startDay || taskEndDay > endDay) return;
+
+        // 计算索引范围（逻辑与之前一致）
+        const baseStartIndex = (taskStartDay - startDay) * 2;
+        const baseEndIndex = (taskEndDay - startDay + 1) * 2 - 1;
+        let adjustedStart = baseStartIndex + (task.timeStart > 12 ? 1 : 0);
+        let adjustedEnd =
+          task.timeEnd < 12 ? (taskEndDay - startDay) * 2 : baseEndIndex;
+        adjustedStart = Math.max(adjustedStart, 0);
+        adjustedEnd = Math.min(adjustedEnd, interval - 1);
+
+        // 填充任务并标记首次出现
+        for (let i = adjustedStart; i <= adjustedEnd; i++) {
+          const currentName = task.name;
+          // 若当前name从未被标记过首次出现
+          if (!(currentName in firstOccurrence)) {
+            firstOccurrence[currentName] = i; // 记录首次出现的索引
+            result[i].push({ ...task, first: true }); // 添加 first: true
+          } else {
+            // 若当前索引是该name的首次出现位置，则标记
+            const isFirstPosition = i === firstOccurrence[currentName];
+            result[i].push(isFirstPosition ? { ...task, first: true } : task);
+          }
+        }
+      });
+      console.log(result);
+
+      return result;
+    },
+    //=====================================
     //是否是任务第一天 用于插槽
     getTask(scope) {
       //scope：当前行插槽信息
@@ -197,6 +281,8 @@ export default {
             task["paddingR"] = paddingR;
           });
         }
+        console.log(mergedTasks);
+
         return mergedTasks;
       } else {
         return false;
@@ -228,9 +314,9 @@ export default {
 .taskCell {
   display: flex;
   width: 100%;
-  .task {
-    display: flex;
-    min-width: 10px;
+  height: 100%;
+  .taskSpan {
+    flex: 1;
   }
   .taskContent {
     flex: 1;
