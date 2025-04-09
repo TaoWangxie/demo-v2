@@ -18,19 +18,18 @@
       <!-- 插槽 -->
       <template #default="{ scope }">
         <div
-          class="taskCell"
           v-if="scope.$data.row.tasks.length && getTask(scope)"
+          class="taskCell"
         >
           <div
             v-for="(task, index) in getTask(scope)"
             class="taskBox"
+            :style="{ width: task.width }"
             :key="index"
           >
-            <div class="taskBL" :style="{ width: halfW(task, true) }"></div>
-            <div class="taskContent">
-              {{ task.name }}
-            </div>
-            <div class="taskBR" :style="{ width: halfW(task, false) }"></div>
+            <div :style="{ width: task.paddingL }"></div>
+            <div class="taskContent">{{ task.name }}</div>
+            <div :style="{ width: task.paddingR }"></div>
           </div>
         </div>
       </template>
@@ -116,20 +115,20 @@ export default {
         {
           car: "GVHBJJ",
           tasks: [
-            { date: [1, 2], timeStart: 8, timeEnd: 8, name: "11" },
-            { date: [2, 5], timeStart: 14, timeEnd: 8, name: "22" },
-            { date: [6, 7], timeStart: 14, timeEnd: 8, name: "2222" },
+            { date: [1, 1], timeStart: 13, timeEnd: 8, name: "1" },
+            { date: [1, 1], timeStart: 14, timeEnd: 5, name: "2" },
+            { date: [7, 8], timeStart: 14, timeEnd: 8, name: "3" },
           ],
         },
         {
           car: "IJIKKO",
-          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 8, name: "33" }],
+          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 13, name: "33" }],
         },
         {
           car: "YUUTT",
           tasks: [
+            { date: [2, 6], timeStart: 8, timeEnd: 8, name: "55" },
             { date: [6, 9], timeStart: 17, timeEnd: 8, name: "44" },
-            { date: [2, 3], timeStart: 8, timeEnd: 8, name: "55" },
           ],
         },
         {
@@ -158,12 +157,34 @@ export default {
         //存在
         let start = mergedRanges[ind].start; //单元格区间起始值
         let end = mergedRanges[ind].end; //单元格区间终止值
+        let interval = end - start + 1;
+
         let task = []; //当前单元格范围内的所有任务列表
         tasks.forEach((item) => {
           if (item.date[0] >= start && item.date[0] <= end) {
+            item["interval"] = interval;
             task.push(item);
           }
         });
+        if (task.length > 1) {
+          task.forEach((item, index) => {
+            let width = this.taskWidth(item, index, task.length);
+            item["width"] = width;
+            let offset = index == 0 || index == task.length - 1 ? 0.5 : 0;
+            let paddingL = this.halfW(item, true, offset);
+            let paddingR = this.halfW(item, false, offset);
+            item["paddingL"] = index == 0 ? paddingL : 0;
+            item["paddingR"] = index == task.length - 1 ? paddingR : 0;
+          });
+        } else {
+          task.forEach((item) => {
+            item["width"] = `100%`;
+            let paddingL = this.halfW(item, true, 1);
+            let paddingR = this.halfW(item, false, 1);
+            item["paddingL"] = paddingL;
+            item["paddingR"] = paddingR;
+          });
+        }
         return task;
       } else {
         return false;
@@ -178,15 +199,23 @@ export default {
       //   return false;
       // }
     },
+    taskWidth(task, index, tasksLen) {
+      if (task.interval < 2) return `${100 / tasksLen}%`;
+      let offset = index == 0 || index == tasksLen - 1 ? 0.5 : 0;
+      const len = Number(task.date[1]) - Number(task.date[0]) + offset;
+      const width = `${(len / task.interval) * 100}%`;
+      return width;
+    },
     //任务第一天/最后一天 am/pm
-    halfW(row, isFirstDay) {
-      const len = Number(row.date[1]) - Number(row.date[0]);
-      const halfW = `${100 / ((len + 1) * 2)}%`;
+    halfW(task, isFirstDay, offset) {
+      const len = Number(task.date[1]) - Number(task.date[0]) + offset;
+      const halfW = `${100 / (len * 2)}%`;
+      if (task.interval < 2) return 0;
       // 根据日期类型判断条件
       if (isFirstDay) {
-        return row.timeStart > 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
+        return task.timeStart > 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
       } else {
-        return row.timeEnd < 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
+        return task.timeEnd < 12 ? halfW : "0px"; // 网页1中的时间判断逻辑
       }
     },
     handlePageChange(val) {
@@ -200,23 +229,21 @@ export default {
 .MyHome {
   width: 100%;
 }
+.w100 {
+  width: 100%;
+}
 .taskCell {
   display: flex;
   width: 100%;
   .taskBox {
     display: flex;
-    width: 100%;
-  }
-  .taskBL {
-    height: 100%;
-    border-right: 2px solid #409eff;
-  }
-  .taskBR {
-    height: 100%;
+    min-width: 10px;
   }
   .taskContent {
     flex: 1;
     text-align: left;
+    box-sizing: border-box;
+    border-left: 2px solid #409eff;
     background: rgba(64, 158, 255, 0.4);
   }
 }
