@@ -61,12 +61,10 @@
       <template #default="{ scope }">
         <div v-if="scope.$data.row.tasks.length" class="taskCell">
           <div
-            v-for="(task, index) in getTaskList(scope)"
+            v-for="(tasks, index) in getTaskList(scope)"
             class="taskSpan"
+            :style="{ background: getBgc(tasks) }"
             :key="index"
-            :style="{
-              background: task.length ? 'rgba(64, 158, 255, 0.4)' : '',
-            }"
           >
             <el-popover
               placement="right"
@@ -74,18 +72,21 @@
               width="200"
               trigger="click"
             >
-              <div class="taskCard" v-for="(item, index) in task" :key="index">
+              <div class="taskCard" v-for="(item, index) in tasks" :key="index">
                 {{ item.name }}
               </div>
-              <div v-if="task.length" slot="reference" class="taskBox">
-                <template v-for="(item, ind) in task">
+              <div
+                slot="reference"
+                v-if="tasks.length"
+                class="taskBox"
+                :style="{ borderLeft: getBLC(tasks) }"
+              >
+                <div v-if="getFristTask(tasks).length > 1">多任务</div>
+                <template v-else>
                   <div
-                    v-if="item.first"
-                    :key="ind"
                     class="taskInfo"
-                    :style="{
-                      borderLeft: item.first ? '2px solid #409eff' : '',
-                    }"
+                    v-for="(item, ind) in getFristTask(tasks)"
+                    :key="ind"
                   >
                     <div class="taskInfoTitle">{{ item.statusName }}</div>
                     <div class="taskInfoText">{{ item.name }}</div>
@@ -226,7 +227,7 @@ export default {
               id: 1,
               date: [1, 2],
               timeStart: 8,
-              timeEnd: 5,
+              timeEnd: 14,
               name: "任务1",
               status: 0,
               statusName: 111,
@@ -235,20 +236,20 @@ export default {
             {
               id: 2,
               date: [2, 5],
-              timeStart: 4,
+              timeStart: 3,
               timeEnd: 13,
               name: "任务2",
-              status: 0,
+              status: 1,
               statusName: 111,
               tel: 122222222222,
             },
             {
               id: 3,
-              date: [7, 10],
+              date: [7, 8],
               timeStart: 14,
               timeEnd: 14,
               name: "任务3",
-              status: 0,
+              status: 2,
               statusName: 111,
               tel: 122222222222,
             },
@@ -263,7 +264,7 @@ export default {
               timeStart: 13,
               timeEnd: 13,
               name: "任务4",
-              status: 0,
+              status: 2,
               statusName: 111,
               tel: 122222222222,
             },
@@ -287,9 +288,42 @@ export default {
         pageNum: 1,
         total: 20,
       },
+      map: {
+        0: {
+          bgc: "rgb(197.7, 225.9, 255)",
+          bgc2: "rgb(121.3, 187.1, 255)",
+          borderColor: "#409EFF",
+        },
+        1: {
+          bgc: "rgb(209.4, 236.7, 195.9)",
+          bgc2: "rgb(148.6, 212.3, 117.1)",
+          borderColor: "#67C23A",
+        },
+        2: {
+          bgc: "rgb(247.5, 227.1, 196.5)",
+          bgc2: "rgb(237.5, 189.9, 118.5)",
+          borderColor: "#E6A23C",
+        },
+      },
     };
   },
   methods: {
+    getBgc(tasks) {
+      if (!tasks.length) return "transparent";
+      let name = tasks.length > 1 ? "bgc2" : "bgc";
+      return this.map[tasks[tasks.length - 1].status][name];
+    },
+    getBLC(tasks) {
+      let fristTask = this.getFristTask(tasks);
+      if (!fristTask.length) return "none";
+      return `2px solid ${
+        this.map[fristTask[fristTask.length - 1].status].borderColor
+      }`;
+    },
+    getFristTask(tasks) {
+      let firstTasks = tasks.filter((item) => item.first);
+      return firstTasks;
+    },
     getTaskList(scope) {
       let tasks = scope.$data.row.tasks; //当前行任务列表
       let mergedRanges = this.$refs.tableRef.getMergedRanges(tasks, 1, 1); //当前行合并单元格区间列表
@@ -390,7 +424,7 @@ export default {
       }
     },
     //获取每个任务的宽以及 am/pm 前后padding
-    getTaskStyle(task, offset) {
+    getTaskStyle111(task, offset) {
       const len = Number(task.date[1]) - Number(task.date[0]) + offset;
       const halfW = `${100 / (len * 2)}%`;
       const width = `${(len / task.interval) * 100}%`;
