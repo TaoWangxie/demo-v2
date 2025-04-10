@@ -68,9 +68,32 @@
               background: task.length ? 'rgba(64, 158, 255, 0.4)' : '',
             }"
           >
-            <span v-for="(item, index) in task" :key="index">
-              <span v-if="item.first">{{ item.name }}</span>
-            </span>
+            <el-popover
+              placement="right"
+              :key="index"
+              width="200"
+              trigger="click"
+            >
+              <div class="taskCard" v-for="(item, index) in task" :key="index">
+                {{ item.name }}
+              </div>
+              <div v-if="task.length" slot="reference" class="taskBox">
+                <template v-for="(item, ind) in task">
+                  <div
+                    v-if="item.first"
+                    :key="ind"
+                    class="taskInfo"
+                    :style="{
+                      borderLeft: item.first ? '2px solid #409eff' : '',
+                    }"
+                  >
+                    <div class="taskInfoTitle">{{ item.statusName }}</div>
+                    <div class="taskInfoText">{{ item.name }}</div>
+                    <div class="taskInfoText">{{ item.tel }}</div>
+                  </div>
+                </template>
+              </div>
+            </el-popover>
           </div>
         </div>
       </template>
@@ -93,90 +116,170 @@ export default {
           prop: "car",
           attr: {
             fixed: "left",
-            width: "140px",
+            width: "160px",
           },
         },
         {
           label: "1",
           prop: "code1",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "2",
           prop: "code2",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "3",
           prop: "code3",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "4",
           prop: "code4",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "5",
           prop: "code5",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "6",
           prop: "code6",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "7",
           prop: "code7",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "8",
           prop: "code8",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "9",
           prop: "code9",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "10",
           prop: "code10",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "11",
           prop: "code11",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "12",
           prop: "code12",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "13",
           prop: "code13",
+          attr: {
+            minWidth: "120px",
+          },
         },
         {
           label: "14",
           prop: "code14",
+          attr: {
+            minWidth: "120px",
+          },
         },
       ],
       tableData: [
         {
           car: "GVHBJJ",
           tasks: [
-            { date: [1, 2], timeStart: 13, timeEnd: 4, name: "1" },
-            { date: [2, 5], timeStart: 12, timeEnd: 5, name: "2" },
-            { date: [7, 10], timeStart: 14, timeEnd: 14, name: "3" },
+            {
+              id: 1,
+              date: [1, 2],
+              timeStart: 8,
+              timeEnd: 5,
+              name: "任务1",
+              status: 0,
+              statusName: 111,
+              tel: 122222222222,
+            },
+            {
+              id: 2,
+              date: [2, 5],
+              timeStart: 4,
+              timeEnd: 13,
+              name: "任务2",
+              status: 0,
+              statusName: 111,
+              tel: 122222222222,
+            },
+            {
+              id: 3,
+              date: [7, 10],
+              timeStart: 14,
+              timeEnd: 14,
+              name: "任务3",
+              status: 0,
+              statusName: 111,
+              tel: 122222222222,
+            },
           ],
         },
         {
           car: "IJIKKO",
-          tasks: [{ date: [3, 5], timeStart: 13, timeEnd: 13, name: "4" }],
-        },
-        {
-          car: "YUUTT",
           tasks: [
-            { date: [2, 4], timeStart: 8, timeEnd: 8, name: "5" },
-            { date: [5, 9], timeStart: 17, timeEnd: 8, name: "6" },
+            {
+              id: 4,
+              date: [3, 3],
+              timeStart: 13,
+              timeEnd: 13,
+              name: "任务4",
+              status: 0,
+              statusName: 111,
+              tel: 122222222222,
+            },
           ],
         },
-        {
-          car: "eivom",
-          tasks: [],
-        },
+        // {
+        //   car: "YUUTT",
+        //   tasks: [
+        //     { id: 5, date: [2, 4], timeStart: 8, timeEnd: 8, name: "任务5" },
+        //     { id: 6, date: [5, 9], timeStart: 17, timeEnd: 8, name: "任务6" },
+        //   ],
+        // },
+        // {
+        //   car: "eivom",
+        //   tasks: [],
+        // },
       ],
       hideConfig: ["checkbox", "serial"],
       pagination: {
@@ -207,11 +310,9 @@ export default {
       const interval = (endDay - startDay + 1) * 2;
       const result = Array.from({ length: interval }, () => []);
       const firstOccurrence = {}; // 记录每个name首次出现的索引位置
-
       tasks.forEach((task) => {
         const [taskStartDay, taskEndDay] = task.date;
         if (taskStartDay < startDay || taskEndDay > endDay) return;
-
         // 计算索引范围（逻辑与之前一致）
         const baseStartIndex = (taskStartDay - startDay) * 2;
         const baseEndIndex = (taskEndDay - startDay + 1) * 2 - 1;
@@ -223,14 +324,14 @@ export default {
 
         // 填充任务并标记首次出现
         for (let i = adjustedStart; i <= adjustedEnd; i++) {
-          const currentName = task.name;
+          const curTask = task.id;
           // 若当前name从未被标记过首次出现
-          if (!(currentName in firstOccurrence)) {
-            firstOccurrence[currentName] = i; // 记录首次出现的索引
+          if (!(curTask in firstOccurrence)) {
+            firstOccurrence[curTask] = i; // 记录首次出现的索引
             result[i].push({ ...task, first: true }); // 添加 first: true
           } else {
             // 若当前索引是该name的首次出现位置，则标记
-            const isFirstPosition = i === firstOccurrence[currentName];
+            const isFirstPosition = i === firstOccurrence[curTask];
             result[i].push(isFirstPosition ? { ...task, first: true } : task);
           }
         }
@@ -317,19 +418,44 @@ export default {
   height: 100%;
   .taskSpan {
     flex: 1;
+    font-size: 12px;
   }
-  .taskContent {
-    flex: 1;
-    text-align: left;
-    box-sizing: border-box;
-    padding: 0 5px;
-    border-left: 2px solid #409eff;
-    background: rgba(64, 158, 255, 0.4);
+  .taskBox {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    .taskInfo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      text-align: left;
+      padding: 0 4px;
+    }
+    .taskInfoTitle {
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 20px;
+    }
+    .taskInfoText {
+      font-size: 12px;
+      line-height: 13px;
+    }
   }
+  // .taskContent {
+  //   flex: 1;
+  //   text-align: left;
+  //   box-sizing: border-box;
+  //   padding: 0 5px;
+  //   border-left: 2px solid #409eff;
+  //   background: rgba(64, 158, 255, 0.4);
+  // }
 }
 </style>
 <style>
-.task span {
+.taskCell span {
   flex: 1;
 }
 </style>

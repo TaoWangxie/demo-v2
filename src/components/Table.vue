@@ -255,12 +255,12 @@ export default {
   padding: 0;
   width: 100%;
   height: 100%;
-  line-height: 46px;
+  line-height: 50px;
   text-align: center;
 }
 .calendarTable ::v-deep .el-table .el-table__cell {
   padding: 0;
-  height: 46px;
+  height: 50px;
 }
 .calendarTable ::v-deep .el-table th.el-table__cell {
   background: #f8f8f9;
