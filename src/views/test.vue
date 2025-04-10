@@ -309,11 +309,11 @@ export default {
       const [startDay, endDay] = targetDateRange;
       const interval = (endDay - startDay + 1) * 2;
       const result = Array.from({ length: interval }, () => []);
-      const firstOccurrence = {}; // 记录每个name首次出现的索引位置
+      const firstOccurrence = {}; // 记录每个task首次出现的索引位置
       tasks.forEach((task) => {
         const [taskStartDay, taskEndDay] = task.date;
         if (taskStartDay < startDay || taskEndDay > endDay) return;
-        // 计算索引范围（逻辑与之前一致）
+        // 计算索引范围
         const baseStartIndex = (taskStartDay - startDay) * 2;
         const baseEndIndex = (taskEndDay - startDay + 1) * 2 - 1;
         let adjustedStart = baseStartIndex + (task.timeStart > 12 ? 1 : 0);
@@ -325,12 +325,12 @@ export default {
         // 填充任务并标记首次出现
         for (let i = adjustedStart; i <= adjustedEnd; i++) {
           const curTask = task.id;
-          // 若当前name从未被标记过首次出现
+          // 若当前task从未被标记过首次出现
           if (!(curTask in firstOccurrence)) {
             firstOccurrence[curTask] = i; // 记录首次出现的索引
             result[i].push({ ...task, first: true }); // 添加 first: true
           } else {
-            // 若当前索引是该name的首次出现位置，则标记
+            // 若当前索引是该task的首次出现位置，则标记
             const isFirstPosition = i === firstOccurrence[curTask];
             result[i].push(isFirstPosition ? { ...task, first: true } : task);
           }
