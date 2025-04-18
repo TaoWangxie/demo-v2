@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style></style>
+</head>
+<body>
+    <div id="main"></div>
+
+
+    <!-- 
+    <p style="text-align: center; " class="fs-16">
+             
+    </p>
+    <p style="text-align: left; " class="fs-16">
+
+    </p>
+    <p style="text-align: center; margin-top: 4px; margin-bottom: 4px">
+        <img
+          style="width: 80%"
+          src="https://sqzl-file.oss-cn-beijing.aliyuncs.com/pc/online/mcar/website/news/62-1.webp"
+          alt=""
+        />
+    </p> 
+    -->
+</body>
+<script>
+    function compressHTML(html) {
+        // 步骤1：移除HTML注释
+        html = html.replace(/<!--[\s\S]*?-->/g, '');
+        // 步骤2：压缩连续空格为单个空格（保留文本内容中的必要空格）
+        html = html.replace(/\s+/g, ' ');
+        // 步骤3：去除标签间的所有空白符（需排除pre、textarea等标签）
+        html = html.replace(/(pre|textarea)[^>]*?>[\s\S]*?<\/\1/g, match => match.replace(/>\s+</g, '><'));
+        // 步骤4：最终压缩所有标签间空白符
+        html = html.replace(/>\s+</g, '><');
+        console.log(html.trim());
+    }
+    let bodystr = document.getElementById('main').innerHTML;
+    compressHTML(bodystr)
+</script>
+</html>

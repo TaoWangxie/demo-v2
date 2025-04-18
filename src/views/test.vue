@@ -79,10 +79,10 @@
                 slot="reference"
                 v-if="tasks.length"
                 class="taskBox"
-                :style="{ borderLeft: getBLC(tasks) }"
+                :style="{ borderLeft: getBlc(tasks) }"
               >
-                <div v-if="getFristTask(tasks).length > 1">多任务</div>
-                <template v-else>
+                <!-- <div v-if="getFristTask(tasks).length > 1">多任务</div> -->
+                <template>
                   <div
                     class="taskInfo"
                     v-for="(item, ind) in getFristTask(tasks)"
@@ -90,7 +90,7 @@
                   >
                     <div class="taskInfoTitle">{{ item.statusName }}</div>
                     <div class="taskInfoText">{{ item.name }}</div>
-                    <div class="taskInfoText">{{ item.tel }}</div>
+                    <!-- <div class="taskInfoText">{{ item.tel }}</div> -->
                   </div>
                 </template>
               </div>
@@ -104,6 +104,7 @@
   
 <script>
 import Table from "@/components/Table.vue";
+
 export default {
   name: "MyHome",
   components: {
@@ -169,55 +170,55 @@ export default {
             minWidth: "120px",
           },
         },
-        {
-          label: "8",
-          prop: "code8",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "9",
-          prop: "code9",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "10",
-          prop: "code10",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "11",
-          prop: "code11",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "12",
-          prop: "code12",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "13",
-          prop: "code13",
-          attr: {
-            minWidth: "120px",
-          },
-        },
-        {
-          label: "14",
-          prop: "code14",
-          attr: {
-            minWidth: "120px",
-          },
-        },
+        // {
+        //   label: "8",
+        //   prop: "code8",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "9",
+        //   prop: "code9",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "10",
+        //   prop: "code10",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "11",
+        //   prop: "code11",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "12",
+        //   prop: "code12",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "13",
+        //   prop: "code13",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
+        // {
+        //   label: "14",
+        //   prop: "code14",
+        //   attr: {
+        //     minWidth: "120px",
+        //   },
+        // },
       ],
       tableData: [
         {
@@ -236,7 +237,7 @@ export default {
             {
               id: 2,
               date: [2, 5],
-              timeStart: 3,
+              timeStart: 0,
               timeEnd: 13,
               name: "任务2",
               status: 1,
@@ -245,24 +246,34 @@ export default {
             },
             {
               id: 3,
-              date: [7, 8],
-              timeStart: 14,
-              timeEnd: 14,
+              date: [6, 9],
+              timeStart: 0,
+              timeEnd: 20,
               name: "任务3",
               status: 2,
               statusName: 111,
               tel: 122222222222,
             },
+            // {
+            //   id: 4,
+            //   date: [6, 8],
+            //   timeStart: 4,
+            //   timeEnd: 5,
+            //   name: "任务4",
+            //   status: 2,
+            //   statusName: 111,
+            //   tel: 122222222222,
+            // },
           ],
         },
         {
           car: "IJIKKO",
           tasks: [
             {
-              id: 4,
+              id: 5,
               date: [3, 3],
-              timeStart: 13,
-              timeEnd: 13,
+              timeStart: 0,
+              timeEnd: 3,
               name: "任务4",
               status: 2,
               statusName: 111,
@@ -305,6 +316,7 @@ export default {
           borderColor: "#E6A23C",
         },
       },
+      MaxDate: 7,
     };
   },
   methods: {
@@ -313,7 +325,7 @@ export default {
       let name = tasks.length > 1 ? "bgc2" : "bgc";
       return this.map[tasks[tasks.length - 1].status][name];
     },
-    getBLC(tasks) {
+    getBlc(tasks) {
       let fristTask = this.getFristTask(tasks);
       if (!fristTask.length) return "none";
       return `2px solid ${
@@ -339,39 +351,80 @@ export default {
         return [];
       }
     },
-    generateSchedule(tasks, targetDateRange) {
-      const [startDay, endDay] = targetDateRange;
-      const interval = (endDay - startDay + 1) * 2;
-      const result = Array.from({ length: interval }, () => []);
-      const firstOccurrence = {}; // 记录每个task首次出现的索引位置
-      tasks.forEach((task) => {
-        const [taskStartDay, taskEndDay] = task.date;
-        if (taskStartDay < startDay || taskEndDay > endDay) return;
-        // 计算索引范围
-        const baseStartIndex = (taskStartDay - startDay) * 2;
-        const baseEndIndex = (taskEndDay - startDay + 1) * 2 - 1;
-        let adjustedStart = baseStartIndex + (task.timeStart > 12 ? 1 : 0);
-        let adjustedEnd =
-          task.timeEnd < 12 ? (taskEndDay - startDay) * 2 : baseEndIndex;
-        adjustedStart = Math.max(adjustedStart, 0);
-        adjustedEnd = Math.min(adjustedEnd, interval - 1);
+    // generateSchedule(tasks, targetDateRange) {
+    //   const [startDay, endDay] = targetDateRange;
+    //   const interval = (endDay - startDay + 1) * 2;
+    //   const result = Array.from({ length: interval }, () => []);
+    //   const firstOccurrence = {}; // 记录每个task首次出现的索引位置
+    //   tasks.forEach((task) => {
+    //     const [taskStartDay, taskEndDay] = task.date;
+    //     if (taskStartDay < startDay || taskEndDay > endDay) return;
+    //     // 计算索引范围
+    //     const baseStartIndex = (taskStartDay - startDay) * 2;
+    //     const baseEndIndex = (taskEndDay - startDay + 1) * 2 - 1;
+    //     let adjustedStart = baseStartIndex + (task.timeStart > 12 ? 1 : 0);
+    //     let adjustedEnd =
+    //       task.timeEnd < 12 ? (taskEndDay - startDay) * 2 : baseEndIndex;
+    //     adjustedStart = Math.max(adjustedStart, 0);
+    //     adjustedEnd = Math.min(adjustedEnd, interval - 1);
 
-        // 填充任务并标记首次出现
-        for (let i = adjustedStart; i <= adjustedEnd; i++) {
+    //     // 填充任务并标记首次出现
+    //     for (let i = adjustedStart; i <= adjustedEnd; i++) {
+    //       const curTask = task.id;
+    //       // 若当前task从未被标记过首次出现
+    //       if (!(curTask in firstOccurrence)) {
+    //         firstOccurrence[curTask] = i; // 记录首次出现的索引
+    //         result[i].push({ ...task, first: true }); // 添加 first: true
+    //       } else {
+    //         // 若当前索引是该task的首次出现位置，则标记
+    //         const isFirstPosition = i === firstOccurrence[curTask];
+    //         result[i].push(isFirstPosition ? { ...task, first: true } : task);
+    //       }
+    //     }
+    //   });
+    //   return result;
+    // },
+    //截断
+    cutOff(EndDay) {
+      return EndDay > this.MaxDate ? this.MaxDate : EndDay;
+    },
+    generateSchedule(tasks, targetDateRange) {
+      const [startDay, realEndDay] = targetDateRange;
+      let endDay = this.cutOff(realEndDay);
+      const DAYS = endDay - startDay + 1;
+      const HOURS_PER_SLOT = 3;
+      const SLOTS_PER_DAY = 24 / HOURS_PER_SLOT; // 8
+      const interval = DAYS * SLOTS_PER_DAY; // 总时间片数量
+      const result = Array.from({ length: interval }, () => []);
+      const firstOccurrence = {};
+      tasks.forEach((task) => {
+        const [taskStartDay, taskRealEndDay] = task.date;
+        let taskEndDay = this.cutOff(taskRealEndDay);
+        let timeEnd = taskRealEndDay > 7 ? 23 : task.timeEnd;
+        // 边界检查
+        if (taskStartDay < startDay || taskEndDay > endDay) return;
+        // 计算起始时间片
+        const dayOffsetStart = (taskStartDay - startDay) * SLOTS_PER_DAY;
+        const startSlot =
+          dayOffsetStart + Math.floor(task.timeStart / HOURS_PER_SLOT);
+        // 计算结束时间片
+        const dayOffsetEnd = (taskEndDay - startDay) * SLOTS_PER_DAY;
+        const endSlot = dayOffsetEnd + Math.floor(timeEnd / HOURS_PER_SLOT);
+        // 调整边界
+        const adjustedStart = Math.max(startSlot, 0);
+        const adjustedEnd = Math.min(endSlot, interval - 1);
+        // 填充时间片
+        for (let slot = adjustedStart; slot <= adjustedEnd; slot++) {
           const curTask = task.id;
-          // 若当前task从未被标记过首次出现
           if (!(curTask in firstOccurrence)) {
-            firstOccurrence[curTask] = i; // 记录首次出现的索引
-            result[i].push({ ...task, first: true }); // 添加 first: true
+            firstOccurrence[curTask] = slot;
+            result[slot].push({ ...task, first: true });
           } else {
-            // 若当前索引是该task的首次出现位置，则标记
-            const isFirstPosition = i === firstOccurrence[curTask];
-            result[i].push(isFirstPosition ? { ...task, first: true } : task);
+            const isFirst = slot === firstOccurrence[curTask];
+            result[slot].push(isFirst ? { ...task, first: true } : task);
           }
         }
       });
-      console.log(result);
-
       return result;
     },
     //=====================================
