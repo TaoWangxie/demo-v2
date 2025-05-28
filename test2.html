@@ -1,0 +1,281 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>百度地图API路书实现历史轨迹回放</title>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=03EV2mS83xtLoifvHnRm5MTx5krHDIg0"></script>
+        <script type="text/javascript" src="./lushu.js"></script>
+        <script type="text/javascript"  src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		<!-- 路书功能 -->
+        <!-- <script src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
+
+	</head>
+	<body>
+		<!-- 在此处添加控制按钮和滑动条 -->
+		<div id="controls">
+			<!-- 开始按钮 -->
+			<button onclick="start()">开始</button>
+			<!-- 暂停按钮 -->
+			<button onclick="pause()">暂停</button>
+			<!-- 继续按钮 -->
+			<button onclick="resume()">继续</button>
+			 <!-- 暂停按钮 -->
+			<button onclick="stop()">停止</button>
+            <span>播放速度</span>
+            <input type="range" id="speed">
+            <!-- 播放进度条 -->
+			<span>播放进度</span>
+			<input type="range" id="process">
+		</div>
+		<div id="allmap" style="position: absolute; width: 100%; top: 50px; bottom: 0px"></div>
+		    
+	<script type="text/javascript">
+        //方法重写
+        BMapLib.LuShu.prototype._move = function(initPos,targetPos,effect) {
+            //进度条的设置
+            $('#process').slider('setValue', this.i);
+            var me = this,
+                //当前的帧数
+                currentCount = 0,
+                //步长，米/秒
+                // timer = 10,
+                // step = this._opts.speed / (1000 / timer),
+                timer = this._opts.speed / 50,
+                step = this._opts.speed / (100 / timer),
+                //初始坐标
+                init_pos = this._projection.lngLatToPoint(initPos),
+                //获取结束点的(x,y)坐标
+                target_pos = this._projection.lngLatToPoint(targetPos),
+                //总的步长
+                count = Math.round(me._getDistance(init_pos, target_pos) / step);
+
+            //如果小于1直接移动到下一点
+            if (count < 1) {
+                me._moveNext(++me.i);
+                return;
+            }
+            //两点之间匀速移动
+            me._intervalFlag = setInterval(function() {
+                //两点之间当前帧数大于总帧数的时候，则说明已经完成移动
+                if (currentCount >= count) {
+                    clearInterval(me._intervalFlag);
+                    //移动的点已经超过总的长度
+                    if(me.i > me._path.length){
+                        return;
+                    }
+                    //运行下一个点
+                    me._moveNext(++me.i);
+                }else {
+                    currentCount++;
+                    var x = effect(init_pos.x, target_pos.x, currentCount, count),
+                        y = effect(init_pos.y, target_pos.y, currentCount, count),
+                        pos = me._projection.pointToLngLat(new BMap.Pixel(x, y));
+                    //设置marker
+                    if(currentCount == 1){
+                        var proPos = null;
+                        if(me.i - 1 >= 0){
+                            proPos = me._path[me.i - 1];
+                        }
+                        if(me._opts.enableRotation == true){
+                            me.setRotation(proPos,initPos,targetPos);
+                        }
+                        // if(me._opts.autoView){
+                        //     if(!me._map.getBounds().containsPoint(pos)){
+                        //         me._map.setCenter(pos);
+                        //     }
+                        // }
+                    }
+                    //正在移动
+                    me._marker.setPosition(pos);
+                    //设置自定义overlay的位置
+                    me._setInfoWin(pos);
+                }
+            },timer);
+        }
+
+		
+        var map = new BMap.Map("allmap", { minZoom: 9, maxZoom: 19 });
+        var point = new BMap.Point(116.128554, 24.294562);
+        var top_left_navigation = new BMap.NavigationControl();
+        map.enableScrollWheelZoom();//启用滚轮放大缩小
+		//中心点坐标
+		var carCenterPoint = new BMap.Point(113.400827,23.17394);
+		map.centerAndZoom(carCenterPoint , 16);
+		
+		var pois = [];
+		//车辆轨迹坐标
+		// var latLngArray = [
+		// 	"113.408984,23.174023",
+		// 	"113.406639,23.174023",
+		// 	"113.403944,23.173566",
+		// 	"113.400827,23.17394",
+		// 	"113.397468,23.174496",
+		// 	"113.391494,23.174513",
+		// 	"113.389032,23.174588",
+		// 	"113.388736,23.173217",
+		// 	"113.388511,23.171888",
+		// 	"113.388592,23.170501",
+		// 	"113.38861,23.170219",
+		// 	"113.38861,23.168342",
+		// 	"113.388574,23.165218"
+		// ];
+        var latLngArray = [
+			{path:"113.408984,23.174023", color:'#67C23A'},
+            {path:"113.406639,23.174023", color:'#67C23A'},
+            {path:"113.403944,23.173566", color:'#67C23A'},
+            {path:"113.400827,23.17394", color:'#67C23A'},
+            {path:"113.397468,23.174496", color:'#E6A23C'},
+            {path:"113.391494,23.174513", color:'#E6A23C'},
+            {path:"113.389032,23.174588", color:'#E6A23C'},
+            {path:"113.388736,23.173217", color:'#E6A23C'},
+            {path:"113.388511,23.171888", color:'#F56C6C'},
+            {path:"113.388592,23.170501", color:'#F56C6C'},
+            {path:"113.38861,23.170219", color:'#F56C6C'},
+            {path:"113.38861,23.168342", color:'#F56C6C'},
+            {path:"113.388574,23.165218", color:'#F56C6C'},
+		];
+        // 步骤1: 转换数据结构
+        const points = latLngArray.map(item => {
+            const [lng, lat] = item.path.split(',').map(coord => parseFloat(coord).toFixed(6)); // 保留6位小数
+            return {
+                point: new BMap.Point(lng, lat),
+                color: item.color
+            };
+        });
+
+        // 步骤2: 自动分段逻辑
+        let segments = [];
+        let currentColor = points[0].color;
+        let startIdx = 0;
+
+        for (let i = 1; i < points.length; i++) {
+            if (points[i].color !== currentColor) {
+                // 当前段包含 startIdx 到 i（含i作为端点）
+                segments.push({
+                    start: startIdx,
+                    end: i,          // 原为 i-1，现改为包含i
+                    color: currentColor
+                });
+                currentColor = points[i].color;
+                startIdx = i;        // 新段从i开始（复用当前点）
+            }
+        }
+        // 添加最后一段时需包含剩余点
+        segments.push({ start: startIdx, end: points.length - 1, color: currentColor });
+        // 步骤3: 绘制各段路径
+        segments.forEach(seg => {
+            // 提取本段点坐标
+            const subPoints = points.slice(seg.start, seg.end + 1).map(p => p.point);
+            pois.push(...subPoints);
+            // 创建线段（至少2个点）
+            if (subPoints.length >= 2) {
+                const polyline = new BMap.Polyline(subPoints, {
+                    strokeColor: seg.color,
+                    strokeWeight: 6,
+                    strokeOpacity: 0.8
+                });
+                map.addOverlay(polyline);
+            }
+        });
+
+
+		
+		// //对坐标进行处理，获取BMap.Point对象
+		// for(var i = 0; i < latLngArray.length ; i++) {
+		// 	var latLng = latLngArray[i];
+		// 	var pointArray = latLng.split(",");
+		// 	pois.push(new BMap.Point(pointArray[0], pointArray[1]));
+		// }
+		
+		// //轨迹显示样式
+		// var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
+		// 	scale: 0.6,//图标缩放大小
+		// 	strokeColor: '#fff',//设置矢量图标的线填充颜色
+		// 	strokeWeight: '2',//设置线宽
+		// });
+		// var icons = new BMap.IconSequence(sy, '10', '30');
+
+		// //创建polyline对象
+		// var polyline = new BMap.Polyline(pois, {
+		// 	enableEditing: false,//是否启用线编辑，默认为false
+		// 	enableClicking: true,//是否响应点击事件，默认为true
+		// 	icons: [],
+		// 	strokeWeight: '8',//折线的宽度，以像素为单位
+		// 	strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+		// 	strokeColor: "#18a45b" //折线颜色
+			
+		// });
+		// map.addOverlay(polyline);
+		
+		//添加路书图标
+		var ls_icons = new BMap.Icon('C:\\Users\\out of the common\\Downloads\\car.png', new BMap.Size(32,32),{anchor: new BMap.Size(16, 16)});
+		//路书默认信息窗口内容
+		var trackContent = "某车辆轨迹回放";
+		//添加路书
+		var lushu = new BMapLib.LuShu(map,pois,{
+			defaultContent: trackContent,
+			icons: [],
+			autoView: false,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+			speed: 50,
+			enableRotation: true,//是否设置marker随着道路的走向进行旋转
+            landmarkPois: [],
+		});
+        var speedEl = new Slider('#speed', {
+			min: 1, //最小值
+			max: 500, //最大值
+			step: 50, //步长
+			value: 100, //默认值
+		});
+		speedEl.on("change", function (obj) { //滑动条改变事件
+			var value = obj.newValue;
+			if (lushu != null) {
+				lushu._opts.speed = parseInt(value);
+			}			
+		});
+        var processEl = $('#process').slider({
+            orientation: "horizontal", //排列方式
+            value: 0,
+            min: 0,
+            max: pois.length - 1, //pois为路书数据
+        });
+        processEl.on("change", function (obj) { //滑动条改变事件
+            if (lushu.i < obj.value.newValue) {  //快进 如果滑动条的进度大于路书当前的进度，则把滑动条设置为路书当前的进度                               
+                $('#process').slider('value', lushu.i);
+                // lushu.i = obj.value.newValue;
+            } else {  //后退
+                lushu.i = obj.value.newValue;
+            }
+            if (obj.value.newValue == pois.length - 1) {
+                pause();
+            }
+		});
+
+    
+        // 定义开始、暂停、继续、停止函数
+        function start() {
+            lushu.start();
+        }
+        function pause() {
+            lushu.pause();
+        }
+        function resume() {
+            lushu.start();
+        }
+        function stop() {
+            lushu.stop();
+        }
+
+
+
+
+
+
+    </script>
+	</body>
+	
+</html>
+<!-- 原文链接 -->
+<!-- https://2048.csdn.net/68258798a5baf817cf4c2a6a.html?dp_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTU0MzMyMiwiZXhwIjoxNzQ4OTMwOTc2LCJpYXQiOjE3NDgzMjYxNzYsInVzZXJuYW1lIjoibTBfNDUxMTMxMjEifQ.MqNkDp62fyzDG7LKKt1rXL_e3ABGUu-0tSGyZ6lG_-c&spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Eactivity-3-131086729-blog-78200725.235%5Ev43%5Epc_blog_bottom_relevance_base8&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Eactivity-3-131086729-blog-78200725.235%5Ev43%5Epc_blog_bottom_relevance_base8&utm_relevant_index=5 -->

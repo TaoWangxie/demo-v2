@@ -281,17 +281,35 @@ export default {
             },
           ],
         },
-        // {
-        //   car: "YUUTT",
-        //   tasks: [
-        //     { id: 5, date: [2, 4], timeStart: 8, timeEnd: 8, name: "任务5" },
-        //     { id: 6, date: [5, 9], timeStart: 17, timeEnd: 8, name: "任务6" },
-        //   ],
-        // },
-        // {
-        //   car: "eivom",
-        //   tasks: [],
-        // },
+        {
+          car: "YUUTT",
+          tasks: [
+            {
+              id: 6,
+              date: [2, 4],
+              timeStart: 8,
+              timeEnd: 8,
+              name: "任务5",
+              status: 1,
+              statusName: 111,
+              tel: 122222222222,
+            },
+            {
+              id: 7,
+              date: [5, 9],
+              timeStart: 17,
+              timeEnd: 8,
+              name: "任务6",
+              status: 2,
+              statusName: 111,
+              tel: 122222222222,
+            },
+          ],
+        },
+        {
+          car: "eivom",
+          tasks: [],
+        },
       ],
       hideConfig: ["checkbox", "serial"],
       pagination: {
