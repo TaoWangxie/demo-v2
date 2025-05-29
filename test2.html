@@ -11,7 +11,41 @@
         <!-- <script src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script> -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
-
+        <script src="http://api.map.baidu.com/library/InfoBox/1.2/src/InfoBox_min.js"></script>
+        <style>
+            .custom-infobox {
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                padding: 20px;
+                min-width: 280px;
+            }
+            
+            .info-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            
+            .company-logo {
+                width: 40px;
+                height: 40px;
+                margin-right: 12px;
+            }
+            
+            .contact-btn {
+                background: #4CAF50;
+                color: white;
+                padding: 8px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: opacity 0.3s;
+            }
+            
+            .contact-btn:hover {
+                opacity: 0.9;
+            }
+            </style>
 	</head>
 	<body>
 		<!-- 在此处添加控制按钮和滑动条 -->
@@ -41,8 +75,6 @@
                 //当前的帧数
                 currentCount = 0,
                 //步长，米/秒
-                // timer = 10,
-                // step = this._opts.speed / (1000 / timer),
                 timer = this._opts.speed / 50,
                 step = this._opts.speed / (100 / timer),
                 //初始坐标
@@ -106,37 +138,24 @@
 		map.centerAndZoom(carCenterPoint , 16);
 		
 		var pois = [];
-		//车辆轨迹坐标
-		// var latLngArray = [
-		// 	"113.408984,23.174023",
-		// 	"113.406639,23.174023",
-		// 	"113.403944,23.173566",
-		// 	"113.400827,23.17394",
-		// 	"113.397468,23.174496",
-		// 	"113.391494,23.174513",
-		// 	"113.389032,23.174588",
-		// 	"113.388736,23.173217",
-		// 	"113.388511,23.171888",
-		// 	"113.388592,23.170501",
-		// 	"113.38861,23.170219",
-		// 	"113.38861,23.168342",
-		// 	"113.388574,23.165218"
-		// ];
         var latLngArray = [
-			{path:"113.408984,23.174023", color:'#67C23A'},
-            {path:"113.406639,23.174023", color:'#67C23A'},
-            {path:"113.403944,23.173566", color:'#67C23A'},
-            {path:"113.400827,23.17394", color:'#67C23A'},
-            {path:"113.397468,23.174496", color:'#E6A23C'},
-            {path:"113.391494,23.174513", color:'#E6A23C'},
-            {path:"113.389032,23.174588", color:'#E6A23C'},
-            {path:"113.388736,23.173217", color:'#E6A23C'},
-            {path:"113.388511,23.171888", color:'#F56C6C'},
-            {path:"113.388592,23.170501", color:'#F56C6C'},
-            {path:"113.38861,23.170219", color:'#F56C6C'},
-            {path:"113.38861,23.168342", color:'#F56C6C'},
-            {path:"113.388574,23.165218", color:'#F56C6C'},
+			{path:"113.408984,23.174023", color:'#67C23A', marker: '1', text: '' },
+            {path:"113.406639,23.174023", color:'#67C23A', marker: '1', text: ''  },
+            {path:"113.403944,23.173566", color:'#67C23A', marker: '2', text: '故障'  },
+            {path:"113.400827,23.17394", color:'#67C23A', marker: '1', text: ''  },
+            {path:"113.397468,23.174496", color:'#E6A23C', marker: '2', text: '停车'  },
+            {path:"113.391494,23.174513", color:'#E6A23C', marker: '1', text: ''  },
+            {path:"113.389032,23.174588", color:'#E6A23C', marker: '1', text: ''  },
+            {path:"113.388736,23.173217", color:'#E6A23C', marker: '1', text: ''  },
+            {path:"113.388511,23.171888", color:'#F56C6C', marker: '2', text: '事故出厂'  },
+            {path:"113.388592,23.170501", color:'#F56C6C', marker: '1', text: ''  },
+            {path:"113.38861,23.170219", color:'#F56C6C', marker: '2', text: '充电'  },
+            {path:"113.38861,23.168342", color:'#F56C6C', marker: '1', text: ''  },
+            {path:"113.388574,23.165218", color:'#F56C6C', marker: '1', text: ''  },
 		];
+
+
+        //============绘制路径===============
         // 步骤1: 转换数据结构
         const points = latLngArray.map(item => {
             const [lng, lat] = item.path.split(',').map(coord => parseFloat(coord).toFixed(6)); // 保留6位小数
@@ -174,50 +193,29 @@
             if (subPoints.length >= 2) {
                 const polyline = new BMap.Polyline(subPoints, {
                     strokeColor: seg.color,
-                    strokeWeight: 6,
-                    strokeOpacity: 0.8
+                    strokeWeight: 9,
+                    strokeOpacity: 0.9,
+                    enableClicking: true 
+                });
+                polyline.segmentColor = seg.color;
+                polyline.addEventListener('click', function(e) {
+                    const clickedColor = this.segmentColor;
+                    console.log(`当前路径段颜色：${clickedColor}`);
                 });
                 map.addOverlay(polyline);
             }
         });
 
 
-		
-		// //对坐标进行处理，获取BMap.Point对象
-		// for(var i = 0; i < latLngArray.length ; i++) {
-		// 	var latLng = latLngArray[i];
-		// 	var pointArray = latLng.split(",");
-		// 	pois.push(new BMap.Point(pointArray[0], pointArray[1]));
-		// }
-		
-		// //轨迹显示样式
-		// var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
-		// 	scale: 0.6,//图标缩放大小
-		// 	strokeColor: '#fff',//设置矢量图标的线填充颜色
-		// 	strokeWeight: '2',//设置线宽
-		// });
-		// var icons = new BMap.IconSequence(sy, '10', '30');
-
-		// //创建polyline对象
-		// var polyline = new BMap.Polyline(pois, {
-		// 	enableEditing: false,//是否启用线编辑，默认为false
-		// 	enableClicking: true,//是否响应点击事件，默认为true
-		// 	icons: [],
-		// 	strokeWeight: '8',//折线的宽度，以像素为单位
-		// 	strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
-		// 	strokeColor: "#18a45b" //折线颜色
-			
-		// });
-		// map.addOverlay(polyline);
-		
+        //======================绘制路书================
 		//添加路书图标
-		var ls_icons = new BMap.Icon('C:\\Users\\out of the common\\Downloads\\car.png', new BMap.Size(32,32),{anchor: new BMap.Size(16, 16)});
+		var ls_icons = new BMap.Icon("./public/static/images/car_move_icon.png", new BMap.Size(42, 22),{imageSize: new BMap.Size(42, 22)});
 		//路书默认信息窗口内容
 		var trackContent = "某车辆轨迹回放";
 		//添加路书
 		var lushu = new BMapLib.LuShu(map,pois,{
 			defaultContent: trackContent,
-			icons: [],
+			icon: ls_icons,
 			autoView: false,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
 			speed: 50,
 			enableRotation: true,//是否设置marker随着道路的走向进行旋转
@@ -268,6 +266,110 @@
             lushu.stop();
         }
 
+
+        //==========标注点==============
+        // 1. 筛选需要添加标注的点
+        const marker2Points = latLngArray.filter(item => item.marker === '2');
+        // 2. 自定义图标（示例使用蓝色图标）
+        const customIcon = new BMap.Icon(
+            './public/static/images/sanj.png',
+            new BMap.Size(20, 20),
+            {
+                anchor: new BMap.Size(20, 20), // 图标锚点（相对于左上角的偏移）
+                imageOffset: new BMap.Size(0, 0) // 大图剪切起始位置（用于雪碧图）
+            }
+        );
+        // 3. 遍历添加标注点
+        marker2Points.forEach(pointData => {
+            const [lng, lat] = pointData.path.split(',').map(Number);
+            const point = new BMap.Point(lng, lat);
+            // 创建标注对象
+            const marker = new BMap.Marker(point, {
+                icon: customIcon,
+                enableClicking: true,
+            });
+            // 创建Label
+            const label = new BMap.Label(`${pointData.text}`, {
+                position: point,
+            });
+            label.setStyle({
+                display: 'flex',
+                alignItems: 'center',
+                border: 'none',
+                paddingLeft: '40px',
+                paddingRight: '10px',
+                borderRadius: '17px',
+                height: '34px',
+                fontSize: '16px',
+                transform: 'translateX(-70%) translateY(-80%)',
+                backgroundImage: 'url("./public/static/images/jiay.png")', // 背景图URL
+                backgroundSize: '30px',      // 背景图填充
+                backgroundRepeat: 'no-repeat',    // 禁止平铺
+                backgroundPosition: '10% 50%',
+            });
+            label.addEventListener("click", function(e) {
+                openBox(marker, pointData)
+            });
+            // 绑定Label到Marker
+            marker.setLabel(label);
+            map.addOverlay(marker);
+        });
+
+
+        //弹窗
+        let currentInfoBox = null;
+        // 创建InfoBox时绑定地图点击事件
+        function openBox(marker, data) {
+            // 关闭已有弹窗（Webpage 6方案）
+            if (currentInfoBox) {
+                currentInfoBox.close();
+                currentInfoBox = null;
+            }
+            const infoContent = `
+                <div class="custom-infobox">
+                    <div class="info-header">
+                        <h3 style="margin:0">厦门创意互动网络</h3>
+                    </div>
+                    <div class="info-body">
+                        <p>📍 思明区莲前西路699号</p>
+                        <p>📞 0592-5281051</p>
+                    </div>
+                </div>
+            `;
+            const infoWindow = new BMapLib.InfoBox(map, infoContent, { 
+                boxStyle: {
+                    width: "300px",
+                    padding: "0",
+                    borderRadius: "10px"
+                },
+                closeIconUrl: './public/static/images/jiay.png',
+                enableAutoPan: true,
+                offset: new BMap.Size(0, -200)
+            });
+            // 监听弹窗打开事件（Webpage 2原理）
+            infoWindow.addEventListener("open", function() {
+                // 标记当前活动弹窗
+                currentInfoBox = infoWindow;
+                // 绑定地图点击事件（Webpage 6实现思路）
+                map.addEventListener('click', mapClickHandler);
+            });
+            // 监听弹窗关闭事件
+            infoWindow.addEventListener("close", () => {
+                map.removeEventListener('click', mapClickHandler); // 移除事件监听
+                currentInfoBox = null;
+            });
+            infoWindow.open(marker.getPosition());
+        }
+
+        // 地图点击事件处理器（Webpage 7优化版）
+        function mapClickHandler(e) {
+            // 排除弹窗内部点击（Webpage 4的DOM检测）
+            const isClickOnInfoBox = currentInfoBox?._div?.contains(e.domEvent.target);
+            // 点击地图空白区域时关闭弹窗
+            if (!isClickOnInfoBox && currentInfoBox) {
+                currentInfoBox.close();
+            }
+        }
 
 
 
