@@ -50,6 +50,7 @@
 	<body>
 		<!-- 在此处添加控制按钮和滑动条 -->
 		<div id="controls">
+            
 			<!-- 开始按钮 -->
 			<button onclick="start()">开始</button>
 			<!-- 暂停按钮 -->
@@ -222,16 +223,16 @@
                     const originalMove = BMapLib.LuShu.prototype._move;
                     BMapLib.LuShu.prototype._move = function(initPos, targetPos, effect) {
                         // 进度条更新逻辑
-                        $('#process').slider('setValue', this.i);
+                        $(options.processId).slider('setValue', this.i);
                         originalMove.call(this, initPos, targetPos, effect);
                     };
-                    this.initSliders();
+                    this.initSliders(options.speedId,options.processId);
                 }
             }
-            initSliders() {
-                if(this.options?.speedId){
+            initSliders(speedId,processId) {
+                if(speedId){
                     // 速度滑块
-                    const speedEl = new Slider(this.options.speedId, {
+                    const speedEl = new Slider(speedId, {
                         min: 1, //最小值
                         max: 500, //最大值
                         step: 50, //步长
@@ -245,9 +246,9 @@
                     });
                 }
  
-                if(this.options?.processId){
+                if(processId){
                     // 进度滑块
-                    const processEl = $(this.options.processId).slider({
+                    const processEl = $(processId).slider({
                         orientation: "horizontal", //排列方式
                         value: 0,
                         min: 0,
@@ -256,7 +257,7 @@
                     processEl.on("change", (obj) => { // 使用箭头函数
                         if (this.lushu.i < obj.value.newValue) {  //快进
                             // 如果滑动条的进度大于路书当前的进度，则把滑动条设置为路书当前的进度
-                            $('#process').slider('value', this.lushu.i);
+                            $(processId).slider('value', this.lushu.i);
                         } else {  //后退
                             this.lushu.i = obj.value.newValue;
                         }
@@ -440,8 +441,6 @@
         const trafficMap = new TrafficRouteMap("allmap", {
             centerPoint: new BMap.Point(113.400827, 23.17394),
             zoomLevel: 16,
-            speedId: '#speed',
-            processId:'#process',
         });
 
         // 路径数据
@@ -466,7 +465,9 @@
         // 初始化路书
         trafficMap.initLushu({
             speed: 100,
-            defaultContent: "货运车辆轨迹"
+            defaultContent: "货运车辆轨迹",
+            speedId: '#speed',
+            processId:'#process',
         });
         // 添加标注点
         trafficMap.addMarkers(pathData);

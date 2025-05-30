@@ -190,7 +190,6 @@ var BMapLib = window.BMapLib = BMapLib || {};
                 return;
             }
             this._map = map;
-            console.log(this._map,'this._map')
             //存储一条路线
             this._path = path;
             //移动到当前点的索引
