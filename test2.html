@@ -198,7 +198,7 @@
                 });
                 polyline.segmentColor = seg.color;
                 polyline.addEventListener('click', function(e) {
-                    resetLabel()
+                    markerManager.resetLabelStyle()
                     let infoBoxPos = e.point;
                     const clickedColor = this.segmentColor;
                     const infoContent = `
@@ -277,76 +277,143 @@
             lushu.stop();
         }
 
+        
 
         //==========标注点==============
-        // 1. 筛选需要添加标注的点
-        const marker2Points = latLngArray.filter(item => item.marker === '2');
-        // 2. 自定义图标（示例使用蓝色图标）
-        const customIcon = new BMap.Icon(
-            './public/static/images/sanj.png',
-            new BMap.Size(20, 20),
-            {
-                anchor: new BMap.Size(20, 20), // 图标锚点（相对于左上角的偏移）
-                imageOffset: new BMap.Size(0, 0) // 大图剪切起始位置（用于雪碧图）
+        class CustomMarkerManager {
+            /**
+             * 自定义标注管理器
+             * @param {BMap.Map} map - 百度地图实例
+             * @param {Object} options - 配置选项
+             * @param {string} options.iconUrl - 标注图标路径
+             * @param {number[]} options.iconSize - 图标尺寸 [宽, 高]
+             * @param {string} options.labelBgUrl - 标签背景图路径
+             */
+            constructor(map, options = {}) {
+                this.map = map;
+                this.activeLabel = null;
+                this.markers = [];
+                this.openInfoBox = options.openBox; // 注入外部方法
             }
-        );
 
-        // 3. 遍历添加标注点
-        let activeLabel = null
-        marker2Points.forEach(pointData => {
-            const [lng, lat] = pointData.path.split(',').map(Number);
-            const point = new BMap.Point(lng, lat);
-            // 创建标注对象
-            const marker = new BMap.Marker(point, {
-                icon: customIcon,
-                enableClicking: true,
-            });
-            // 创建Label
-            const label = new BMap.Label(`${pointData.text}`, {
-                position: point,
-            });
+            /**
+             * 添加标注点组
+             * @param {Array} pointsData - 标注点数据数组
+             */
+            addMarkers(pointsData) {
+                pointsData.forEach(pointData => {
+                    const [lng, lat] = pointData.path.split(',').map(Number);
+                    const point = new BMap.Point(lng, lat);
+                    
+                    const customIcon = new BMap.Icon(
+                        './public/static/images/sanj.png',
+                        new BMap.Size(20, 20),
+                        {
+                            anchor: new BMap.Size(20, 20), // 图标锚点（相对于左上角的偏移）
+                            imageOffset: new BMap.Size(0, 0) // 大图剪切起始位置（用于雪碧图）
+                        }
+                    );
+                    // 创建标注[7](@ref)
+                    const marker = new BMap.Marker(point, {
+                        icon: customIcon,
+                        enableClicking: true
+                    });
+                    
+                    // 创建标签
+                    const label = this._createLabel(point, pointData.text);
+                    // 绑定事件
+                    label.addEventListener("click", (e) => this._handleLabelClick(e, marker, pointData));
+                    
+                    marker.setLabel(label);
+                    this.map.addOverlay(marker);
+                    this.markers.push(marker); // 存储引用
+                });
+            }
 
-            label.setStyle({
-                display: 'flex',
-                alignItems: 'center',
-                border: 'none',
-                paddingLeft: '40px',
-                paddingRight: '10px',
-                borderRadius: '18px',
-                height: '36px',
-                fontSize: '16px',
-                transform: 'translateX(-70%) translateY(-80%)',
-                backgroundImage: 'url("./public/static/images/jiay.png")', // 背景图URL
-                backgroundSize: '30px',      // 背景图填充
-                backgroundRepeat: 'no-repeat',    // 禁止平铺
-                backgroundPosition: '4px 50%',
-            });
-            label.addEventListener("click", function(e) {
+            /**
+             * 创建自定义标签
+             * @private
+             */
+            _createLabel(point, text) {
+                const label = new BMap.Label(text, { position: point });
+                label.setStyle({
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: 'none',
+                    paddingLeft: '40px',
+                    paddingRight: '10px',
+                    borderRadius: '18px',
+                    height: '36px',
+                    fontSize: '16px',
+                    transform: 'translateX(-70%) translateY(-80%)',
+                    backgroundImage: `url("./public/static/images/jiay.png")`,
+                    backgroundSize: '30px',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: '4px 50%'
+                });
+                
+                return label;
+            }
+            /**
+             * 标签点击事件处理
+             * @private
+             */
+            _handleLabelClick(e, marker, pointData) {
                 e.domEvent.stopPropagation();
-                // 阻止事件冒泡（避免触发地图点击事件）[5](@ref)
-                e.domEvent.stopPropagation();
+                // 生成信息框内容[5](@ref)
                 const infoContent = `
                     <div class="custom-infobox">
                         <div class="info-header">
-                            <h3 style="margin:0">厦门创意互动网络</h3>
+                            <h3 style="margin:0">${pointData.title || '位置信息'}</h3>
                         </div>
                         <div class="info-body">
-                            <p>📍 思明区莲前西路699号</p>
-                            <p>📞 0592-5281051</p>
+                            <p>📍 ${pointData.address || '地址未提供'}</p>
+                            ${pointData.phone ? `<p>📞 ${pointData.phone}</p>` : ''}
                         </div>
                     </div>
                 `;
-                let infoBoxPos = marker.getPosition()
-                openBox(infoBoxPos, infoContent)
-                setLabel("#F56C6C", "#fff", label)
-            });
-            // 绑定Label到Marker
-            marker.setLabel(label);
-            map.addOverlay(marker);
+                if (typeof this.openInfoBox === 'function') {
+                    this.openInfoBox(marker.getPosition(), infoContent);
+                }
+                this.setLabelStyle("#F56C6C", "#fff", e.target)
+            }
+            /**
+             * 清除所有标注
+             */
+            clearAllMarkers() {
+                this.markers.forEach(marker => this.map.removeOverlay(marker));
+                this.markers = [];
+                this.activeLabel = null;
+            }
+            //重置label样式
+            resetLabelStyle(){
+                if(this.activeLabel){
+                    this.activeLabel.setStyle({
+                        backgroundColor: "#fff", // 目标颜色
+                        color: "#333" // 文字颜色同步调整
+                    });
+                    this.activeLabel = null
+                }
+            }
+            //设置label高亮样式
+            setLabelStyle(backgroundColor,color,label){
+                if(label){
+                    this.activeLabel = label
+                    this.activeLabel.setStyle({
+                        backgroundColor: backgroundColor, // 目标颜色
+                        color: color // 文字颜色同步调整
+                    });
+                }
+            }
+        }
+
+        // 1. 筛选需要添加标注的点
+        const marker2Points = latLngArray.filter(item => item.marker === '2');
+        var markerManager = new CustomMarkerManager(map, {
+            openBox: (infoBoxPos, infoContent) => {openBox(infoBoxPos, infoContent)}
         });
+        markerManager.addMarkers(marker2Points);
 
-
-        //信息弹窗
         let currentInfoBox = null;
         // 创建InfoBox时绑定地图点击事件
         function openBox(infoBoxPos, infoContent) {
@@ -376,7 +443,7 @@
             infoWindow.addEventListener("close", () => {
                 map.removeEventListener('click', mapClickHandler); // 移除事件监听
                 currentInfoBox = null;
-                resetLabel()
+                markerManager.resetLabelStyle()
             });
             infoWindow.open(infoBoxPos);
         }
@@ -390,30 +457,14 @@
             }
         }
 
-        //重置label样式
-        function resetLabel(){
-            if(activeLabel){
-                activeLabel.setStyle({
-                    backgroundColor: "#fff", // 目标颜色
-                    color: "#333" // 文字颜色同步调整
-                });
-                activeLabel = null
-            }
-        }
-        //设置label高亮样式
-        function setLabel(backgroundColor,color,label){
-            if(label){
-                activeLabel = label
-                activeLabel.setStyle({
-                    backgroundColor: backgroundColor, // 目标颜色
-                    color: color // 文字颜色同步调整
-                });
-            }
-        }
 
 
 
 
+
+
+
+ 
 
     </script>
 	</body>

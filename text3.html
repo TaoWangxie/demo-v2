@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>百度地图API路书实现历史轨迹回放</title>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=03EV2mS83xtLoifvHnRm5MTx5krHDIg0"></script>
+        <script type="text/javascript" src="./lushu.js"></script>
+        <script type="text/javascript"  src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		<!-- 路书功能 -->
+        <!-- <script src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
+        <script src="http://api.map.baidu.com/library/InfoBox/1.2/src/InfoBox_min.js"></script>
+        <style>
+            .custom-infobox {
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                padding: 20px;
+                min-width: 280px;
+            }
+            
+            .info-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            
+            .company-logo {
+                width: 40px;
+                height: 40px;
+                margin-right: 12px;
+            }
+            
+            .contact-btn {
+                background: #4CAF50;
+                color: white;
+                padding: 8px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: opacity 0.3s;
+            }
+            
+            .contact-btn:hover {
+                opacity: 0.9;
+            }
+            </style>
+	</head>
+	<body>
+		<!-- 在此处添加控制按钮和滑动条 -->
+		<div id="controls">
+			<!-- 开始按钮 -->
+			<button onclick="start()">开始</button>
+			<!-- 暂停按钮 -->
+			<button onclick="pause()">暂停</button>
+			<!-- 继续按钮 -->
+			<button onclick="resume()">继续</button>
+			 <!-- 暂停按钮 -->
+			<button onclick="stop()">停止</button>
+            <span>播放速度</span>
+            <input type="range" id="speed">
+            <!-- 播放进度条 -->
+			<span>播放进度</span>
+			<input type="range" id="process">
+		</div>
+		<div id="allmap" style="position: absolute; width: 100%; top: 50px; bottom: 0px"></div>
+		    
+	<script type="text/javascript">
+
+        class TrafficRouteMap {
+            /**
+             * 交通路线地图管理器
+             * @param {string} containerId - 地图容器ID
+             * @param {Object} options - 配置选项
+             * @param {BMap.Point} options.centerPoint - 地图中心点坐标
+             * @param {number} options.zoomLevel - 初始缩放级别
+             * @param {string} options.carIconUrl - 路书车辆图标路径
+             * @param {string} options.markerIconUrl - 标注点图标路径
+             */
+            constructor(containerId, options = {}) {
+                // 地图实例
+                this.map = new BMap.Map(containerId, { 
+                    minZoom: 9, 
+                    maxZoom: 19 
+                });
+                
+                // 配置参数
+                this.options = Object.assign({
+                    centerPoint: new BMap.Point(113.400827, 23.17394),
+                    zoomLevel: 16,
+                    carIconUrl: "./public/static/images/car_move_icon.png",
+                    markerIconUrl: "./public/static/images/sanj.png",
+                }, options);
+
+                // 初始化地图
+                this._initMap();
+                
+                // 核心组件
+                this.lushu = null;          // 路书实例
+                this.activeLabel = null;    // 当前激活的标签
+                this.currentInfoBox = null; // 当前信息窗口
+                this.markers = [];          // 存储所有标注点
+                this.pois = [];             // 存储路径点
+            }
+
+            // ==================== 私有方法 ====================
+            _initMap() {
+                // 添加地图控件
+                this.map.addControl(new BMap.NavigationControl());
+                this.map.enableScrollWheelZoom();
+                this.map.centerAndZoom(this.options.centerPoint, this.options.zoomLevel);
+            }
+
+            // ==================== 路径管理 ====================
+            /**
+             * 绘制分段颜色路径
+             * @param {Array} pathData - 路径数据数组
+             */
+            drawPath(pathData) {
+                // 1. 转换数据结构
+                const points = pathData.map(item => {
+                    const [lng, lat] = item.path.split(',').map(Number);
+                    return {
+                        point: new BMap.Point(lng, lat),
+                        color: item.color,
+                        marker: item.marker,
+                        text: item.text
+                    };
+                });
+                // 2. 自动颜色分段
+                let segments = [];
+                let currentColor = points[0].color;
+                let startIdx = 0;
+                for (let i = 1; i < points.length; i++) {
+                    if (points[i].color !== currentColor) {
+                        segments.push({
+                            start: startIdx,
+                            end: i,
+                            color: currentColor
+                        });
+                        currentColor = points[i].color;
+                        startIdx = i;
+                    }
+                }
+                segments.push({ 
+                    start: startIdx, 
+                    end: points.length - 1, 
+                    color: currentColor 
+                });
+                // 3. 绘制各段路径
+                this.pois = [];
+                segments.forEach(seg => {
+                    const subPoints = points.slice(seg.start, seg.end + 1).map(p => p.point);
+                    this.pois.push(...subPoints);
+                    if (subPoints.length >= 2) {
+                        const polyline = new BMap.Polyline(subPoints, {
+                            strokeColor: seg.color,
+                            strokeWeight: 10,
+                            strokeOpacity: 1,
+                            enableClicking: true 
+                        });
+                        // 存储分段颜色用于点击事件
+                        polyline.segmentColor = seg.color;
+                        // 绑定点击事件
+                        polyline.addEventListener('click', (e) => {
+                            this.resetLabelStyle();
+                            this.openInfoBox(e.point, `
+                                <div class="custom-infobox">
+                                    <div class="info-header">
+                                        <h3 style="margin:0">路段信息</h3>
+                                    </div>
+                                    <div class="info-body">
+                                        <p>状态: ${this._getStatusByColor(seg.color)}</p>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                        this.map.addOverlay(polyline);
+                    }
+                });
+                return this.pois;
+            }
+
+            // 根据颜色获取状态描述
+            _getStatusByColor(color) {
+                const statusMap = {
+                    '#67C23A': '正常运行',
+                    '#409EFF': '停车状态',
+                    '#F56C6C': '异常状态'
+                };
+                return statusMap[color] || '未知状态';
+            }
+
+            // ==================== 路书管理 ====================
+            /**
+             * 初始化路书轨迹
+             * @param {Object} options - 路书配置
+             */
+            initLushu(options = {}) {
+                const defaultOptions = {
+                    defaultContent: "车辆轨迹回放",
+                    icon: new BMap.Icon(
+                        this.options.carIconUrl, 
+                        new BMap.Size(42, 22),
+                        { imageSize: new BMap.Size(42, 22) }
+                    ),
+                    autoView: false,
+                    speed: 50,
+                    enableRotation: true,
+                    landmarkPois: []
+                };
+
+                this.lushu = new BMapLib.LuShu(
+                    this.map, 
+                    this.pois,
+                    Object.assign(defaultOptions, options)
+                );
+                
+                // 重写路书移动方法（添加进度条支持）
+                if (this.lushu) {
+                    const originalMove = BMapLib.LuShu.prototype._move;
+                    BMapLib.LuShu.prototype._move = function(initPos, targetPos, effect) {
+                        // 进度条更新逻辑
+                        $('#process').slider('setValue', this.i);
+                        originalMove.call(this, initPos, targetPos, effect);
+                    };
+                    this.initSliders();
+                }
+            }
+            initSliders() {
+                if(this.options?.speedId){
+                    // 速度滑块
+                    const speedEl = new Slider(this.options.speedId, {
+                        min: 1, //最小值
+                        max: 500, //最大值
+                        step: 50, //步长
+                        value: 100, //默认值
+                    });
+                    speedEl.on("change", (obj) => { // 使用箭头函数确保this指向类实例
+                        const value = obj.newValue;
+                        if (this.lushu != null) {
+                            this.lushu._opts.speed = parseInt(value);
+                        }
+                    });
+                }
+ 
+                if(this.options?.processId){
+                    // 进度滑块
+                    const processEl = $(this.options.processId).slider({
+                        orientation: "horizontal", //排列方式
+                        value: 0,
+                        min: 0,
+                        max: this.pois.length - 1, //pois为路书数据
+                    });
+                    processEl.on("change", (obj) => { // 使用箭头函数
+                        if (this.lushu.i < obj.value.newValue) {  //快进
+                            // 如果滑动条的进度大于路书当前的进度，则把滑动条设置为路书当前的进度
+                            $('#process').slider('value', this.lushu.i);
+                        } else {  //后退
+                            this.lushu.i = obj.value.newValue;
+                        }
+                        if (obj.value.newValue == this.pois.length - 1) {
+                            this.pauseLushu(); // 到达终点时暂停
+                        }
+                    });
+                }
+            }
+            // 路书控制方法
+            startLushu() { this.lushu?.start(); }
+            pauseLushu() { this.lushu?.pause(); }
+            resumeLushu() { this.lushu?.start(); }
+            stopLushu() { this.lushu?.stop(); }
+            setLushuSpeed(speed) { 
+                if (this.lushu) this.lushu._opts.speed = speed; 
+            }
+            // ==================== 标注管理 ====================
+            /**
+             * 添加标注点
+             * @param {Array} markerData - 标注点数据
+             */
+            addMarkers(markerData) {
+                // 筛选需要添加标注的点 (marker === '2')
+                const pointsData = markerData.filter(item => item.marker === '2');
+                pointsData.forEach(pointData => {
+                    const [lng, lat] = pointData.path.split(',').map(Number);
+                    const point = new BMap.Point(lng, lat);
+                    // 创建标注图标
+                    const customIcon = new BMap.Icon(
+                        this.options.markerIconUrl,
+                        new BMap.Size(20, 20),
+                        { anchor: new BMap.Size(20, 20) }
+                    );
+                    // 创建标注
+                    const marker = new BMap.Marker(point, {
+                        icon: customIcon,
+                        enableClicking: true
+                    });
+                    // 创建标签
+                    const label = this._createLabel(point, pointData.text);
+                    // 绑定点击事件
+                    label.addEventListener("click", (e) => {
+                        const infoContent = `
+                            <div class="custom-infobox">
+                                <div class="info-header">
+                                    <h3 style="margin:0">${pointData.title || '位置信息'}</h3>
+                                </div>
+                                <div class="info-body">
+                                    <p>📍 ${pointData.address || '地址未提供'}</p>
+                                    ${pointData.phone ? `<p>📞 ${pointData.phone}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                        this.openInfoBox(marker.getPosition(), infoContent);
+                        this.setLabelStyle("#F56C6C", "#fff", e.target);
+                    });
+                    marker.setLabel(label);
+                    this.map.addOverlay(marker);
+                    this.markers.push(marker);
+                });
+            }
+            /**
+             * 创建自定义标签
+             * @private
+             */
+            _createLabel(point, text) {
+                const label = new BMap.Label(text, { position: point });
+                label.setStyle({
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: 'none',
+                    paddingLeft: '40px',
+                    paddingRight: '10px',
+                    borderRadius: '18px',
+                    height: '36px',
+                    fontSize: '16px',
+                    transform: 'translateX(-70%) translateY(-80%)',
+                    backgroundImage: `url("./public/static/images/jiay.png")`,
+                    backgroundSize: '30px',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: '4px 50%'
+                });
+                return label;
+            }
+
+            /**
+             * 重置标签样式
+             */
+            resetLabelStyle() {
+                if (this.activeLabel) {
+                    this.activeLabel.setStyle({
+                        backgroundColor: "#fff",
+                        color: "#333"
+                    });
+                    this.activeLabel = null;
+                }
+            }
+            /**
+             * 设置标签高亮样式
+             * @param {string} backgroundColor - 背景色
+             * @param {string} color - 文字颜色
+             * @param {BMap.Label} label - 标签实例
+             */
+            setLabelStyle(backgroundColor, color, label) {
+                if (label) {
+                    this.activeLabel = label;
+                    this.activeLabel.setStyle({
+                        backgroundColor: backgroundColor,
+                        color: color
+                    });
+                }
+            }
+            /**
+             * 清除所有标注
+             */
+            clearAllMarkers() {
+                this.markers.forEach(marker => this.map.removeOverlay(marker));
+                this.markers = [];
+                this.activeLabel = null;
+            }
+
+            // ==================== 信息窗口管理 ====================
+            /**
+             * 打开信息窗口
+             * @param {BMap.Point} position - 信息窗口位置
+             * @param {string} content - HTML内容
+             */
+            openInfoBox(position, content) {
+                // 关闭已有窗口
+                this.closeInfoBox();
+                const infoWindow = new BMapLib.InfoBox(this.map, content, {
+                    boxStyle: {
+                        width: "300px",
+                        padding: "0",
+                        borderRadius: "10px"
+                    },
+                    closeIconUrl: './public/static/images/jiay.png',
+                    enableAutoPan: true,
+                    offset: new BMap.Size(0, -200),
+                });
+                // 事件监听
+                infoWindow.addEventListener("open", () => {
+                    this.currentInfoBox = infoWindow;
+                    this.map.addEventListener('click', this._mapClickHandler);
+                });
+                infoWindow.addEventListener("close", () => {
+                    this.map.removeEventListener('click', this._mapClickHandler);
+                    this.currentInfoBox = null;
+                    this.resetLabelStyle();
+                });
+                infoWindow.open(position);
+            }
+            // 关闭信息窗口
+            closeInfoBox() {
+                if (this.currentInfoBox) {
+                    this.currentInfoBox.close();
+                    this.currentInfoBox = null;
+                }
+            }
+            // 地图点击处理器
+            _mapClickHandler = (e) => {
+                const isClickOnInfoBox = this.currentInfoBox?._div?.contains(e.domEvent.target);
+                if (!isClickOnInfoBox && this.currentInfoBox) {
+                    this.currentInfoBox.close();
+                }
+            }
+            // ==================== 销毁方法 ====================
+            destroy() {
+                this.closeInfoBox();
+                this.stopLushu();
+                this.clearAllMarkers();
+                this.map = null;
+            }
+        }
+
+
+        
+        // ==================== 使用示例 ====================
+        // 初始化地图
+        const trafficMap = new TrafficRouteMap("allmap", {
+            centerPoint: new BMap.Point(113.400827, 23.17394),
+            zoomLevel: 16,
+            speedId: '#speed',
+            processId:'#process',
+        });
+
+        // 路径数据
+        const pathData = [
+            {path:"113.408984,23.174023", color:'#67C23A', marker: '1', text: '' },
+            {path:"113.406639,23.174023", color:'#67C23A', marker: '1', text: ''  },
+            {path:"113.403944,23.173566", color:'#67C23A', marker: '2', text: '故障'  },
+            {path:"113.400827,23.17394", color:'#67C23A', marker: '1', text: ''  },
+            {path:"113.397468,23.174496", color:'#409EFF', marker: '2', text: '停车'  },
+            {path:"113.391494,23.174513", color:'#409EFF', marker: '1', text: ''  },
+            {path:"113.389032,23.174588", color:'#409EFF', marker: '1', text: ''  },
+            {path:"113.388736,23.173217", color:'#409EFF', marker: '1', text: ''  },
+            {path:"113.388511,23.171888", color:'#F56C6C', marker: '2', text: '事故出厂'  },
+            {path:"113.388592,23.170501", color:'#F56C6C', marker: '1', text: ''  },
+            {path:"113.38861,23.170219", color:'#F56C6C', marker: '2', text: '充电'  },
+            {path:"113.38861,23.168342", color:'#F56C6C', marker: '1', text: ''  },
+            {path:"113.388574,23.165218", color:'#F56C6C', marker: '1', text: ''  },
+        ];
+
+        // 绘制路径
+        trafficMap.drawPath(pathData);
+        // 初始化路书
+        trafficMap.initLushu({
+            speed: 100,
+            defaultContent: "货运车辆轨迹"
+        });
+        // 添加标注点
+        trafficMap.addMarkers(pathData);
+
+
+
+        // 定义开始、暂停、继续、停止函数
+        function start() {
+            trafficMap.startLushu();
+        }
+        function pause() {
+            trafficMap.pauseLushu();
+        }
+        function resume() {
+            trafficMap.startLushu();
+        }
+        function stop() {
+            trafficMap.stopLushu();
+        }
+        
+
+    </script>
+	</body>
+	
+</html>
+<!-- 原文链接 -->
+<!-- https://2048.csdn.net/68258798a5baf817cf4c2a6a.html?dp_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTU0MzMyMiwiZXhwIjoxNzQ4OTMwOTc2LCJpYXQiOjE3NDgzMjYxNzYsInVzZXJuYW1lIjoibTBfNDUxMTMxMjEifQ.MqNkDp62fyzDG7LKKt1rXL_e3ABGUu-0tSGyZ6lG_-c&spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Eactivity-3-131086729-blog-78200725.235%5Ev43%5Epc_blog_bottom_relevance_base8&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Eactivity-3-131086729-blog-78200725.235%5Ev43%5Epc_blog_bottom_relevance_base8&utm_relevant_index=5 -->
