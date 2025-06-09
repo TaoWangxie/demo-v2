@@ -26,6 +26,14 @@ export const routes = [
           title: " 数据配置中心",
         },
       },
+      {
+        path: "/bmaplushu",
+        name: "bmaplushu",
+        component: () => import("@/views/bmaplushu/index.vue"),
+        mate: {
+          title: "bmaplushu",
+        },
+      },
     ],
   },
   {
@@ -60,6 +68,7 @@ export const routes = [
       title: "test",
     },
   },
+
 ];
 
 const router = new VueRouter({

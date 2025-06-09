@@ -1,12 +1,17 @@
 <template>
-  <div class="DataConfig">DataConfig</div>
+  <div class="traffic-map-container">111</div>
 </template>
 
 <script>
 export default {
-  name: "DataConfig",
-  components: {},
+  name: "TrafficRouteMapComponent",
+  data() {
+    return {};
+  },
+  mounted() {},
+  methods: {},
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>
