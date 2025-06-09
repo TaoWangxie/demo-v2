@@ -1,5 +1,5 @@
 <template>
-  <div class="MyHome">
+  <div class="Bmaplushu">
     <TrafficRouteMap></TrafficRouteMap>
   </div>
 </template>
@@ -7,7 +7,7 @@
   <script>
 import TrafficRouteMap from "./TrafficRouteMap/index.vue";
 export default {
-  name: "MyHome",
+  name: "Bmaplushu",
   components: {
     TrafficRouteMap,
   },
@@ -17,6 +17,5 @@ export default {
   methods: {},
 };
 </script>
-  
-  <style lang="scss" scoped></style>
+<style lang="scss" scoped></style>
   

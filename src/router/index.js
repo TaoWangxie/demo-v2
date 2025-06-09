@@ -31,7 +31,7 @@ export const routes = [
         name: "bmaplushu",
         component: () => import("@/views/bmaplushu/index.vue"),
         mate: {
-          title: "bmaplushu",
+          title: "百度路书",
         },
       },
     ],
