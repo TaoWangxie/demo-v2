@@ -22,13 +22,68 @@
 		    
 	<script type="text/javascript">
         var map = new BMap.Map("allmap", { minZoom: 9, maxZoom: 19 });
-        var point = new BMap.Point(116.128554, 24.294562);
-        var top_left_navigation = new BMap.NavigationControl();
         map.enableScrollWheelZoom();//启用滚轮放大缩小
-		//中心点坐标
-		var carCenterPoint = new BMap.Point(113.400827,23.17394);
-		map.centerAndZoom(carCenterPoint , 16);
-		
+        const startPoint = new BMap.Point(116.404, 39.915); // 起点
+        const endPoint = new BMap.Point(116.504, 39.935);   // 终点
+        const marker = new BMap.Marker(startPoint);
+        map.addOverlay(marker);
+		map.centerAndZoom(startPoint , 12);
+
+
+        // 2. 平滑移动函数
+        function smoothMove(start, end, runTime = 2000, interval = 50) {
+            const projection = map.getMapType().getProjection();
+            // 球面坐标 → 平面坐标
+            const startPixel = projection.lngLatToPoint(start);
+            const endPixel = projection.lngLatToPoint(end);
+            
+            let currentCount = 0;
+            const count = runTime / interval; // 总帧数
+            
+            const timer = setInterval(() => {
+                if (currentCount >= count) {
+                    clearInterval(timer);
+                    return;
+                }
+                
+                // 计算当前帧的插值
+                const x = linear(startPixel.x, endPixel.x, currentCount, count);
+                const y = linear(startPixel.y, endPixel.y, currentCount, count);
+                const currentPixel = new BMap.Pixel(x, y);
+                
+                // 平面坐标 → 球面坐标
+                const currentPoint = projection.pointToLngLat(currentPixel);
+                marker.setPosition(currentPoint);
+                
+                // 更新车头方向（可选）
+                if (currentCount > 0) {
+                    const rotation = calculateRotation(start, currentPoint);
+                    marker.setRotation(rotation);
+                }
+                
+                currentCount++;
+            }, interval);
+        }
+
+        // 3. 线性插值函数
+        function linear(init, target, current, total) {
+            return (target - init) * current / total + init;
+        }
+
+        // 4. 计算车头方向角度（关键！）
+        function calculateRotation(start, end) {
+            const startPixel = map.pointToPixel(start);
+            const endPixel = map.pointToPixel(end);
+            const dx = endPixel.x - startPixel.x;
+            const dy = endPixel.y - startPixel.y;
+            // 使用反正切计算弧度 → 角度
+            let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            return angle + 90; // 调整图标默认方向（车头朝上）
+        }
+
+        // 5. 触发移动
+        smoothMove(startPoint, endPoint);
+                
 		
 
     </script>
